@@ -1,8 +1,8 @@
 ## New Shopware-Kube Concept WiP
-The concept is to test out PHP static build and compiled in application. All in a single binary.
+This concept is to test out Shopware PHP static build and compiled in application. All in a single binary.
 It is based on [FrankenPHP](https://frankenphp.dev) and [static-php-cli](https://static-php.dev) projects.
-Note that a binary is built for production only. The dev version is based on `dunglas/frankenphp` image.
-The reason is inability to install xdebug for the binary version.
+Note that a static binary is built for production environments only. 
+The dev version is based on `dunglas/frankenphp` image, because of inability to install xdebug in the binary version. 
 
 ## Build
 
