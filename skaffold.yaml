@@ -1,0 +1,57 @@
+apiVersion: skaffold/v4beta11
+kind: Config
+metadata:
+  name: shopware-kube
+build:
+  artifacts:
+      - image: kiweeteam/franken-shopware
+        docker:
+          dockerfile: Dockerfile
+          target: app-prod
+manifests:
+  kustomize:
+    paths:
+      - deploy/bases
+deploy:
+  helm:
+    releases:
+      - name: ingress-nginx
+        repo: https://kubernetes.github.io/ingress-nginx
+        remoteChart: ingress-nginx
+        namespace: ingress-nginx
+        createNamespace: true
+        wait: true
+        version: 4.11.1
+      - name: kubernetes-secret-generator
+        repo: https://helm.mittwald.de
+        remoteChart: kubernetes-secret-generator
+        namespace: secret-generator
+        createNamespace: true
+        wait: true
+        version: 3.4.0
+      - name: minio-operator
+        repo: https://operator.min.io
+        remoteChart: operator
+        namespace: minio
+        createNamespace: true
+        wait: true
+        version: 6.0.3
+      - name: cert-manager
+        remoteChart: cert-manager
+        namespace: cert-manager
+        createNamespace: true
+        repo: https://charts.jetstack.io
+        version: v1.15.3
+        wait: true
+        setValues:
+          installCRDs: true
+          ingressShim:
+            defaultIssuerKind: ClusterIssuer
+            defaultIssuerName: selfsigned
+      - name: sealed-secrets
+        remoteChart: sealed-secrets
+        namespace: sealed-secrets
+        createNamespace: true
+        repo: https://bitnami-labs.github.io/sealed-secrets
+        version: 2.16.1
+        wait: true

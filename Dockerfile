@@ -1,12 +1,14 @@
 # syntax=docker/dockerfile:1
 
 # Shopware-builder base image contains all necesary tools to build Shopware with `composer`.
-FROM dunglas/frankenphp:1.2.2-php8.3-bookworm AS app-builder
+FROM dunglas/frankenphp:1.2.5-php8.3.12-bookworm AS app-builder
 ENV COMPOSER_HOME=/tmp/composer
 ENV PROJECT_ROOT=/app
 ENV UID=33
 ENV GID=33
 COPY --from=composer:2.7.7 /usr/bin/composer /usr/bin/composer
+COPY php.ini.development /usr/local/etc/php/php.ini
+
 RUN apt-get clean && apt-get update
 RUN install-php-extensions \
 	zip \
@@ -51,8 +53,10 @@ COPY php.ini.production /go/src/app/dist/app/php.ini
 WORKDIR /go/src/app/
 
 # Remove pre-compiled php-static library and build the new binary
-RUN rm -Rf dist/static-php-cli/ \
-    && EMBED=dist/app/ ./build-static.sh
+#RUN rm -Rf dist/static-php-cli/ \
+#    && EMBED=dist/app/ ./build-static.sh
+
+RUN EMBED=dist/app/ ./build-static.sh
 
 # Compress the executable.
 # Compression level=7 is a good balance between the compression ratio and speed.
@@ -61,7 +65,7 @@ RUN export BIN="frankenphp-"$(uname -s | tr '[:upper:]' '[:lower:]')"-"$(uname -
     && mv "dist/${BIN}" dist/shopware-bin
 
 # Build an image containing the application binary only.
-FROM debian:12-slim AS app-prod
+FROM debian:bookworm-slim AS app-prod
 ENV UID=33
 ENV GID=33
 COPY --from=php-builder-prod /go/src/app/dist/shopware-bin /shopware-bin
@@ -69,7 +73,7 @@ USER ${UID}:${GID}
 ENTRYPOINT ["/shopware-bin"]
 
 # Build dev image with xdebug.
-FROM dunglas/frankenphp:1.2.2-php8.3-bookworm AS app-dev
+FROM dunglas/frankenphp:1.2.5-php8.3.12-bookworm AS app-dev
 ENV PROJECT_ROOT=/app
 ENV PHP_EXTENSIONS="amqp,apcu,bcmath,bz2,calendar,ctype,curl,dba,dom,exif,fileinfo,filter,gd,gmp,gettext,iconv,igbinary,intl,ldap,mbstring,mysqli,mysqlnd,opcache,openssl,pcntl,pdo,pdo_mysql,pdo_sqlite,phar,posix,protobuf,readline,redis,session,shmop,simplexml,soap,sockets,sodium,sqlite3,ssh2,sysvmsg,sysvsem,sysvshm,tidy,tokenizer,xlswriter,xml,xmlreader,xmlwriter,zip,zlib,yaml,zstd"
 ENV UID=33

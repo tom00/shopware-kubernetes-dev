@@ -31,3 +31,11 @@ docker run --rm --name=shopware-bin -p 8000:8000 shopware-bin-dev php-server -l 
 ```shell
 docker run --rm --name=shopware-bin shopware-bin php-cli bin/console
 ```
+
+### Configure Kubernetes cluster
+
+Shopware cluster requires the following components to be available upfront:
+* Ingress controller (e.g. NGINX Ingress Controller, Traefik or HAProxy).
+* S3 compatible storage (e.g. MinIO).
+* [Secret generator](https://github.com/mittwald/kubernetes-secret-generator) to automatically generate passwords.
+* [Sealed secrets](https://github.com/bitnami-labs/sealed-secrets) to encrypt secrets and store encrypted in the repository.
