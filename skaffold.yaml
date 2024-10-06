@@ -19,11 +19,15 @@ build:
   local:
     useBuildkit: true
     concurrency: 3
-#manifests:
-#  kustomize:
-#    paths:
-#      - deploy/bases
+manifests:
+  kustomize:
+    paths:
+      - deploy/bases
 deploy:
+  statusCheck: true
+  statusCheckDeadlineSeconds: 1200
+  kubectl:
+    defaultNamespace: shopware
   helm:
     # Install all dependent operators
     releases:
