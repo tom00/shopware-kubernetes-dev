@@ -8,12 +8,24 @@ build:
         docker:
           dockerfile: Dockerfile
           target: app-prod
-manifests:
-  kustomize:
-    paths:
-      - deploy/bases
+      - image: kiweeteam/franken-shopware-dev
+        sync:
+          manual:
+            - src: "custom/"
+              dest: "/app/custom"
+        docker:
+          dockerfile: Dockerfile
+          target: app-dev
+  local:
+    useBuildkit: true
+    concurrency: 3
+#manifests:
+#  kustomize:
+#    paths:
+#      - deploy/bases
 deploy:
   helm:
+    # Install all dependent operators
     releases:
       - name: ingress-nginx
         repo: https://kubernetes.github.io/ingress-nginx
