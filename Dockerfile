@@ -6,12 +6,13 @@ ENV COMPOSER_HOME=/tmp/composer
 ENV PROJECT_ROOT=/app
 ENV UID=33
 ENV GID=33
+
 COPY --from=composer:2.7.7 /usr/bin/composer /usr/bin/composer
 COPY php.ini.development /usr/local/etc/php/php.ini
 
 RUN apt-get clean && apt-get update
 RUN install-php-extensions \
-	zip \
+	zip redis \
     && chown ${UID}:${GID} ${PROJECT_ROOT} \
     && rm -Rf ${PROJECT_ROOT}/* \
     && mkdir ${COMPOSER_HOME} \
@@ -20,17 +21,16 @@ RUN install-php-extensions \
 USER www-data
 COPY --chown=${UID}:${GID} composer.json composer.json
 COPY --chown=${UID}:${GID} custom custom
+COPY --chown=${UID}:${GID} config config
 RUN mkdir -p custom/plugins
 
 # Build application for production/pre-production - no debug tools.
 FROM app-builder AS app-builder-prod
-RUN composer install --ignore-platform-reqs --no-dev --no-progress -a --apcu-autoloader \
-    && composer dump-env prod
+RUN composer install --ignore-platform-reqs --no-dev --no-progress -a --apcu-autoloader
 
 # Build dev application with dev dependencies
 FROM app-builder AS app-builder-dev
 RUN composer install --ignore-platform-reqs --dev --no-progress -a --apcu-autoloader \
-    && composer dump-env dev \
     && echo '<?php phpinfo();' > public/info.php
 
 # Build production static binary containing Shopware, PHP and Caddy webserver compiled-in.

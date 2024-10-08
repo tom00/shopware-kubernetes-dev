@@ -1,0 +1,6 @@
+elasticsearch:
+  index_settings:
+    number_of_shards: "%env(default:1:int:SHOPWARE_ES_INDEX_SHARDS)%"
+    number_of_replicas: "%env(default:1:int:SHOPWARE_ES_INDEX_REPLICAS)%"
+  ssl:
+    verify_server_cert: false

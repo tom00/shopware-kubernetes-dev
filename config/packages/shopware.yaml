@@ -1,0 +1,17 @@
+shopware:
+  admin_worker:
+    enable_admin_worker: false
+  api:
+    jwt_key:
+      use_app_secret: true
+  auto_update:
+    enabled: false
+  increment:
+    user_activity:
+      type: 'redis'
+      config:
+        url: '%env(string:REDIS_INCREMENT_USER_URL)%'
+    message_queue:
+      type: 'redis'
+      config:
+        url: '%env(string:REDIS_INCREMENT_QUEUE_URL)%'
