@@ -1,0 +1,12 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+metadata:
+  name: app
+
+resources:
+- config/app.yaml
+- config/admin-credentials.yaml
+- shopware-init.yaml
+- app-server.yaml
+#- message-consumer.yaml
+#- job-scheduler.yaml

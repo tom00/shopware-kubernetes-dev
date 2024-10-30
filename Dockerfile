@@ -68,7 +68,12 @@ RUN export BIN="frankenphp-"$(uname -s | tr '[:upper:]' '[:lower:]')"-"$(uname -
 FROM debian:bookworm-slim AS app-prod
 ENV UID=33
 ENV GID=33
+
+RUN apt update && apt install -y jq
 COPY --from=php-builder-prod /go/src/app/dist/shopware-bin /shopware-bin
+
+# php.ini to be loaded by php-cli
+COPY --from=php-builder-prod /go/src/app/dist/app/php.ini /lib/php.ini
 USER ${UID}:${GID}
 ENTRYPOINT ["/shopware-bin"]
 
@@ -85,7 +90,7 @@ COPY php.ini.development ${PHP_INI_DIR}/php.ini
 COPY --chown=${UID}:${GID} --from=app-builder-dev ${PROJECT_ROOT} ${PROJECT_ROOT}
 
 # Install all required prod & dev PHP extensions.
-RUN apt update && apt install -y libxml2-dev libcurl4-openssl-dev \
+RUN apt update && apt install -y libxml2-dev libcurl4-openssl-dev jq \
     && REQUIRED_EXT=$(echo ${PHP_EXTENSIONS} | tr ',' '\n' | sort -u) \
     && INSTALLED_EXT=$(php -m | egrep -v '^\[.+\]$' | tr '[:upper:]' '[:lower:]' | sort -u) \
     # Select extensions which haven't been already installed.

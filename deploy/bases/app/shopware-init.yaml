@@ -1,0 +1,67 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: shopware-init
+spec:
+  template:
+    metadata:
+      name: shopware-init
+      labels:
+        app: shopware
+        component: init
+    spec:
+      securityContext:
+        fsGroup: 33
+
+      containers:
+        - name: setup
+          image: kiweeteam/franken-shopware
+          command: ['/bin/bash']
+          args:
+            - -c
+            - |
+              set -ex
+              # TODO: implement init containers that will wait for db, opensearch and redis
+              sleep 30
+              console_bin="/shopware-bin php-cli bin/ci"
+              
+              # install shopware, run migrations
+              $console_bin system:install
+              
+              # sync apps status
+              $console_bin app:refresh -f -a -n
+              
+              # install plugins
+              list_with_updates=$($console_bin plugin:list --json | jq 'map(select(.installedAt == null)) | .[].name' -r)
+              for plugin in $list_with_updates; do
+                $console_bin plugin:install --activate "$plugin"
+              done
+              
+              list_with_updates=$($console_bin plugin:list --json | jq 'map(select(.upgradeVersion != null)) | .[].name' -r)
+              for plugin in $list_with_updates; do
+                $console_bin plugin:update "$plugin"
+              done
+              
+              # register new async tasks
+              $console_bin scheduled-task:register 
+              
+              # disable setup wizard
+              $console_bin system:config:set core.frw.completedAt '2024-01-01T12:00:00+00:00'
+          envFrom:
+            - configMapRef:
+                name: shopware-app-config
+            - secretRef:
+                name: shopware-app-config
+            - secretRef:
+                name: database-credentials
+            - secretRef:
+                name: shopware-credentials
+          env:
+            - name: SHOPWARE_ADMINISTRATION_PATH_NAME
+              value: "admin_$(SHOPWARE_ADMINISTRATION_PATH_SUFFIX)"
+            - name: DATABASE_URL
+              value: "mysql://$(MYSQL_USER):$(MYSQL_PASSWORD)@db:3306/$(MYSQL_DATABASE)"
+          securityContext:
+            runAsUser: 33
+            runAsGroup: 33
+      restartPolicy: OnFailure
