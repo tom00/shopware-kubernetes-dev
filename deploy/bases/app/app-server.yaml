@@ -59,7 +59,7 @@ spec:
             - name: SHOPWARE_ADMINISTRATION_PATH_NAME
               value: "admin_$(SHOPWARE_ADMINISTRATION_PATH_SUFFIX)"
             - name: DATABASE_URL
-              value: "mysql://$(MYSQL_USER):$(MYSQL_PASSWORD)@db:3306/$(MYSQL_DATABASE)"
+              value: "mysql://$(MYSQL_USER):$(MYSQL_PASSWORD)@$(MYSQL_HOST):$(MYSQL_PORT)/$(MYSQL_DATABASE)"
           ports:
             - name: http-shopware
               containerPort: 8000

@@ -12,7 +12,92 @@ spec:
     spec:
       securityContext:
         fsGroup: 33
-
+      initContainers:
+        - name: wait-for-redis-cache
+          image: busybox:1.37.0-glibc
+          command:
+            - /bin/sh
+          args:
+            - -c
+            - |
+              set -ex
+              hostname=$(echo "${REDIS_CACHE_OBJECT_URL}" | awk -F[/:] '{print $4}')
+              port=$(echo "${REDIS_CACHE_OBJECT_URL}" | awk -F[/:] '{print $5}')
+              echo "Checking Redis availability at ${hostname}:${port}..."
+              echo -e '*1\r\n$4\r\nPING\r\n' | nc -w 1 -z ${hostname} ${port}
+              echo "Passed."
+          envFrom:
+            - configMapRef:
+                name: shopware-app-config
+            - secretRef:
+                name: shopware-app-config
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 33
+            runAsGroup: 33
+        - name: wait-for-redis-session
+          image: busybox:1.37.0-glibc
+          command:
+            - /bin/sh
+          args:
+            - -c
+            - |
+              set -ex
+              hostname=$(echo "${REDIS_SESSION_URL}" | awk -F[/:] '{print $4}')
+              port=$(echo "${REDIS_SESSION_URL}" | awk -F[/:] '{print $5}')
+              echo "Checking Redis availability at ${hostname}:${port}..."
+              echo -e '*1\r\n$4\r\nPING\r\n' | nc -w 1 -z ${hostname} ${port}
+              echo "Passed."
+          envFrom:
+            - configMapRef:
+                name: shopware-app-config
+            - secretRef:
+                name: shopware-app-config
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 33
+            runAsGroup: 33
+        - name: wait-for-db
+          image: busybox:1.37.0-glibc
+          command:
+            - /bin/sh
+          args:
+            - -c
+            - |
+              set -ex
+              hostname=$(echo "${DATABASE_URL}" | awk -F[/:@] '{print $6}')
+              port=$(echo "${DATABASE_URL}" | awk -F[/:@] '{print $7}')
+              echo "Checking MySQL availability at ${hostname}:${port}..."
+              nc -w 1 -z ${hostname} ${port}
+              echo "Passed."
+          env:
+            - name: DATABASE_URL
+              value: "mysql://$(MYSQL_USER):$(MYSQL_PASSWORD)@$(MYSQL_HOST):$(MYSQL_PORT)/$(MYSQL_DATABASE)"
+          envFrom:
+            - secretRef:
+                name: database-credentials
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 33
+            runAsGroup: 33
+        - name: wait-for-opensearch
+          image: alpine/curl:8.10.0
+          command:
+            - sh
+          args:
+            - -c
+            - |
+              set -xe
+              echo "Checking OpenSearch availability at ${OPENSEARCH_URL}"              
+              curl -kISs --fail --retry-all-errors 10 --retry-delay 6 ${OPENSEARCH_URL}
+              echo "Passed."
+          envFrom:
+            - configMapRef:
+                name: shopware-app-config
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 405
+            runAsGroup: 100
       containers:
         - name: setup
           image: kiweeteam/franken-shopware
@@ -20,18 +105,22 @@ spec:
           args:
             - -c
             - |
-              set -ex
-              # TODO: implement init containers that will wait for db, opensearch and redis
-              sleep 30
+              set -x
               console_bin="/shopware-bin php-cli bin/ci"
-              
-              # install shopware, run migrations
-              $console_bin system:install
-              
+              $console_bin system:is-installed              
+              if [ $? -ne 0 ]; then
+                echo "Running first time install."
+                set -ex
+                $console_bin system:install --basic-setup
+              else
+                set -ex
+                $console_bin system:install
+              fi
+                            
               # sync apps status
               $console_bin app:refresh -f -a -n
               
-              # install plugins
+              # install and activate plugins
               list_with_updates=$($console_bin plugin:list --json | jq 'map(select(.installedAt == null)) | .[].name' -r)
               for plugin in $list_with_updates; do
                 $console_bin plugin:install --activate "$plugin"
@@ -60,7 +149,7 @@ spec:
             - name: SHOPWARE_ADMINISTRATION_PATH_NAME
               value: "admin_$(SHOPWARE_ADMINISTRATION_PATH_SUFFIX)"
             - name: DATABASE_URL
-              value: "mysql://$(MYSQL_USER):$(MYSQL_PASSWORD)@db:3306/$(MYSQL_DATABASE)"
+              value: "mysql://$(MYSQL_USER):$(MYSQL_PASSWORD)@$(MYSQL_HOST):$(MYSQL_PORT)/$(MYSQL_DATABASE)"
           securityContext:
             runAsUser: 33
             runAsGroup: 33
