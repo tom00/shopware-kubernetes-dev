@@ -19,12 +19,19 @@ spec:
             - /bin/sh
           args:
             - -c
-            - |
-              set -ex
+            - |  
+              set -x
               hostname=$(echo "${REDIS_CACHE_OBJECT_URL}" | awk -F[/:] '{print $4}')
               port=$(echo "${REDIS_CACHE_OBJECT_URL}" | awk -F[/:] '{print $5}')
               echo "Checking Redis availability at ${hostname}:${port}..."
-              echo -e '*1\r\n$4\r\nPING\r\n' | nc -w 1 -z ${hostname} ${port}
+              i=0
+              until echo -e '*1\r\n$4\r\nPING\r\n' | nc -w 1 -z ${hostname} ${port}; do
+                i=$((i+1))
+                if [ $i -eq 5 ]; then
+                  exit 1
+                fi
+                sleep 2
+              done
               echo "Passed."
           envFrom:
             - configMapRef:
@@ -42,11 +49,18 @@ spec:
           args:
             - -c
             - |
-              set -ex
+              set -x
               hostname=$(echo "${REDIS_SESSION_URL}" | awk -F[/:] '{print $4}')
               port=$(echo "${REDIS_SESSION_URL}" | awk -F[/:] '{print $5}')
               echo "Checking Redis availability at ${hostname}:${port}..."
-              echo -e '*1\r\n$4\r\nPING\r\n' | nc -w 1 -z ${hostname} ${port}
+              i=0
+              until echo -e '*1\r\n$4\r\nPING\r\n' | nc -w 1 -z ${hostname} ${port}; do
+                i=$((i+1))
+                if [ $i -eq 5 ]; then
+                  exit 1
+                fi
+                sleep 2
+              done
               echo "Passed."
           envFrom:
             - configMapRef:
@@ -64,11 +78,18 @@ spec:
           args:
             - -c
             - |
-              set -ex
+              set -x
               hostname=$(echo "${DATABASE_URL}" | awk -F[/:@] '{print $6}')
               port=$(echo "${DATABASE_URL}" | awk -F[/:@] '{print $7}')
               echo "Checking MySQL availability at ${hostname}:${port}..."
-              nc -w 1 -z ${hostname} ${port}
+              i=0
+              until nc -w 1 -z ${hostname} ${port}; do
+                i=$((i+1))
+                if [ $i -eq 30 ]; then
+                  exit 1
+                fi
+                sleep 2
+              done
               echo "Passed."
           env:
             - name: DATABASE_URL
@@ -89,7 +110,7 @@ spec:
             - |
               set -xe
               echo "Checking OpenSearch availability at ${OPENSEARCH_URL}"              
-              curl -kISs --fail --retry-all-errors 10 --retry-delay 6 ${OPENSEARCH_URL}
+              curl -kISs --fail --retry-all-errors 60 --retry-delay 2 ${OPENSEARCH_URL}
               echo "Passed."
           envFrom:
             - configMapRef:
