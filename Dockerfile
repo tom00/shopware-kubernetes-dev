@@ -26,11 +26,11 @@ RUN mkdir -p custom/plugins
 
 # Build application for production/pre-production - no debug tools.
 FROM app-builder AS app-builder-prod
-RUN composer install --ignore-platform-reqs --no-dev --no-progress -a --apcu-autoloader
+RUN composer install --ignore-platform-reqs --no-dev --no-progress -a --apcu-autoloader --no-scripts
 
 # Build dev application with dev dependencies
 FROM app-builder AS app-builder-dev
-RUN composer install --ignore-platform-reqs --dev --no-progress -a --apcu-autoloader \
+RUN composer install --ignore-platform-reqs --dev --no-progress -a --apcu-autoloader --no-scripts \
     && echo '<?php phpinfo();' > public/info.php
 
 # Build production static binary containing Shopware, PHP and Caddy webserver compiled-in.
@@ -69,7 +69,7 @@ FROM debian:bookworm-slim AS app-prod
 ENV UID=33
 ENV GID=33
 
-RUN apt update && apt install -y jq
+RUN apt update && apt install -y jq ca-certificates
 COPY --from=php-builder-prod /go/src/app/dist/shopware-bin /shopware-bin
 
 # php.ini to be loaded by php-cli

@@ -22,6 +22,12 @@ data:
   SHOPWARE_HTTP_DEFAULT_TTL: "7200"
   TRUSTED_PROXIES: "127.0.0.1,REMOTE_ADDR"
   SHOPWARE_SKIP_WEBINSTALLER: "1"
+  BUCKET_URL_PUBLIC: "http://media.test/public"
+  BUCKET_ENDPOINT: "http://media.test"
+  BUCKET_REGION_PUBLIC: "local"
+  BUCKET_REGION_PRIVATE: "local"
+  BUCKET_NAME_PUBLIC: "public"
+  BUCKET_NAME_PRIVATE: "private"
 ---
 apiVersion: secretgenerator.mittwald.de/v1alpha1
 kind: StringSecret
@@ -39,3 +45,17 @@ spec:
     - fieldName: "SHOPWARE_ADMINISTRATION_PATH_SUFFIX"
       encoding: "base32"
       length: "8"
+---
+apiVersion: secretgenerator.mittwald.de/v1alpha1
+kind: StringSecret
+metadata:
+  name: shopware-s3
+spec:
+  forceRegenerate: false
+  fields:
+    - fieldName: "CONSOLE_ACCESS_KEY"
+      encoding: "hex"
+      length: "32"
+    - fieldName: "CONSOLE_SECRET_KEY"
+      encoding: "hex"
+      length: "48"

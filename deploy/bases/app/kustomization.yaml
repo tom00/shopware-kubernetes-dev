@@ -8,5 +8,6 @@ resources:
 - config/admin-credentials.yaml
 - shopware-init.yaml
 - app-server.yaml
+- ingress.yaml
 #- message-consumer.yaml
 #- job-scheduler.yaml

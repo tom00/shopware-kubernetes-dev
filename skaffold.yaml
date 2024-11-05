@@ -31,13 +31,6 @@ deploy:
   helm:
     # Install all dependent operators
     releases:
-      - name: ingress-nginx
-        repo: https://kubernetes.github.io/ingress-nginx
-        remoteChart: ingress-nginx
-        namespace: ingress-nginx
-        createNamespace: true
-        wait: true
-        version: 4.11.1
       - name: kubernetes-secret-generator
         repo: https://helm.mittwald.de
         remoteChart: kubernetes-secret-generator
@@ -52,6 +45,46 @@ deploy:
         createNamespace: true
         wait: true
         version: 6.0.3
+      - name: minio-tenant
+        repo: https://operator.min.io
+        remoteChart: tenant
+        namespace: shopware
+        createNamespace: true
+        wait: true
+        version: 6.0.3
+        setValues:
+          tenant:
+            name: minio-shopware
+            buckets:
+              - name: public
+                objectLock: false
+                region: local
+              - name: private
+                objectLock: false
+                region: local
+            users:
+              - name: shopware-s3
+            pools:
+              - servers: 1
+                volumesPerServer: 1
+                size: 2Gi
+                name: pool0
+                securityContext:
+                  runAsUser: 1000
+                  runAsGroup: 1000
+                  fsGroup: 1000
+                  fsGroupChangePolicy: "OnRootMismatch"
+                  runAsNonRoot: true
+                containerSecurityContext:
+                  runAsUser: 1000
+                  runAsGroup: 1000
+                  runAsNonRoot: true
+                  allowPrivilegeEscalation: false
+                  capabilities:
+                    drop:
+                      - ALL
+                  seccompProfile:
+                    type: RuntimeDefault
       - name: cert-manager
         remoteChart: cert-manager
         namespace: cert-manager

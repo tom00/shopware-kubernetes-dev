@@ -128,6 +128,8 @@ spec:
             - |
               set -x
               console_bin="/shopware-bin php-cli bin/ci"
+              
+              # check if shopware was installed already
               $console_bin system:is-installed              
               if [ $? -ne 0 ]; then
                 echo "Running first time install."
@@ -171,6 +173,16 @@ spec:
               value: "admin_$(SHOPWARE_ADMINISTRATION_PATH_SUFFIX)"
             - name: DATABASE_URL
               value: "mysql://$(MYSQL_USER):$(MYSQL_PASSWORD)@$(MYSQL_HOST):$(MYSQL_PORT)/$(MYSQL_DATABASE)"
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  key: CONSOLE_ACCESS_KEY
+                  name: shopware-s3
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: CONSOLE_SECRET_KEY
+                  name: shopware-s3
           securityContext:
             runAsUser: 33
             runAsGroup: 33
