@@ -39,3 +39,44 @@ Shopware cluster requires the following components to be available upfront:
 * S3 compatible storage (e.g. MinIO).
 * [Secret generator](https://github.com/mittwald/kubernetes-secret-generator) to automatically generate passwords.
 * [Sealed secrets](https://github.com/bitnami-labs/sealed-secrets) to encrypt secrets and store encrypted in the repository.
+
+## MinIO public readonly policy
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+
+      {
+        "Action": [
+          "s3:GetBucketLocation",
+          "s3:ListBucket"
+        ],
+        "Effect": "Allow",
+        "Principal": {
+          "AWS": [
+            "*"
+          ]
+        },
+        "Resource": [
+          "arn:aws:s3:::public"
+        ],
+        "Sid": ""
+      },
+      {
+        "Action": [
+          "s3:GetObject"
+        ],
+        "Effect": "Allow",
+        "Principal": {
+          "AWS": [
+            "*"
+          ]
+        },
+        "Resource": [
+          "arn:aws:s3:::public/*"
+        ],
+        "Sid": ""
+      }        
+    ]
+}
+```

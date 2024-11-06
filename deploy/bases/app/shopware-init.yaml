@@ -187,3 +187,4 @@ spec:
             runAsUser: 33
             runAsGroup: 33
       restartPolicy: OnFailure
+  backoffLimit: 8

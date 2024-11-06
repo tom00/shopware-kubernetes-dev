@@ -26,5 +26,3 @@ minikube start \
 	minikube addons enable metrics-server
   minikube addons enable ingress
   minikube addons enable ingress-dns
-
-minikube dashboard --url

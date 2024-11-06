@@ -62,8 +62,6 @@ deploy:
               - name: private
                 objectLock: false
                 region: local
-            users:
-              - name: shopware-s3
             pools:
               - servers: 1
                 volumesPerServer: 1

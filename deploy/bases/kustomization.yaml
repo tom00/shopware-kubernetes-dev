@@ -5,4 +5,5 @@ resources:
   - database
   - opensearch
   - redis
+  - storage
   - app
