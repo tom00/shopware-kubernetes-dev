@@ -27,7 +27,9 @@ spec:
               i=0
               until echo -e '*1\r\n$4\r\nPING\r\n' | nc -w 1 -z ${hostname} ${port}; do
                 i=$((i+1))
-                if [ $i -eq 5 ]; then
+              
+                # 20s timeout
+                if [ $i -eq 10 ]; then
                   exit 1
                 fi
                 sleep 2
@@ -56,7 +58,9 @@ spec:
               i=0
               until echo -e '*1\r\n$4\r\nPING\r\n' | nc -w 1 -z ${hostname} ${port}; do
                 i=$((i+1))
-                if [ $i -eq 5 ]; then
+                
+                # 20s timeout
+                if [ $i -eq 10 ]; then
                   exit 1
                 fi
                 sleep 2
@@ -85,6 +89,8 @@ spec:
               i=0
               until nc -w 1 -z ${hostname} ${port}; do
                 i=$((i+1))
+               
+                # 60s timeout
                 if [ $i -eq 30 ]; then
                   exit 1
                 fi
@@ -108,9 +114,19 @@ spec:
           args:
             - -c
             - |
-              set -xe
-              echo "Checking OpenSearch availability at ${OPENSEARCH_URL}"              
-              curl -kISs --fail --retry-all-errors 60 --retry-delay 2 ${OPENSEARCH_URL}
+              set -x
+              echo "Checking OpenSearch availability at ${OPENSEARCH_URL}"   
+              i=0
+              until curl -kISs --fail ${OPENSEARCH_URL}; do         
+                i=$((i+1))
+                
+                # 120s timeout
+                if [ $i -eq 60 ]; then
+                  exit 1
+                fi
+                sleep 2
+              done
+              
               echo "Passed."
           envFrom:
             - configMapRef:
@@ -184,6 +200,7 @@ spec:
                   key: CONSOLE_SECRET_KEY
                   name: shopware-s3
           securityContext:
+            runAsNonRoot: true
             runAsUser: 33
             runAsGroup: 33
       restartPolicy: OnFailure

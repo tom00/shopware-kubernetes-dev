@@ -8,6 +8,9 @@ build:
         docker:
           dockerfile: Dockerfile
           target: app-prod
+          secrets:
+            - id: composer_auth
+              src: auth.json
       - image: kiweeteam/franken-shopware-dev
         sync:
           manual:
@@ -16,6 +19,9 @@ build:
         docker:
           dockerfile: Dockerfile
           target: app-dev
+          secrets:
+            - id: composer_auth
+              src: auth.json
   local:
     useBuildkit: true
     concurrency: 3

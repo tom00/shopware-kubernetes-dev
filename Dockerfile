@@ -26,11 +26,13 @@ RUN mkdir -p custom/plugins
 
 # Build application for production/pre-production - no debug tools.
 FROM app-builder AS app-builder-prod
-RUN composer install --ignore-platform-reqs --no-dev --no-progress -a --apcu-autoloader --no-scripts
+RUN --mount=type=secret,id=composer_auth,mode=444,dst=/app/auth.json \
+    composer install --ignore-platform-reqs --no-dev --no-progress -a --apcu-autoloader --no-scripts
 
 # Build dev application with dev dependencies
 FROM app-builder AS app-builder-dev
-RUN composer install --ignore-platform-reqs --dev --no-progress -a --apcu-autoloader --no-scripts \
+RUN --mount=type=secret,id=composer_auth,mode=444,dst=/app/auth.json \
+    composer install --ignore-platform-reqs --dev --no-progress -a --apcu-autoloader --no-scripts \
     && echo '<?php phpinfo();' > public/info.php
 
 # Build production static binary containing Shopware, PHP and Caddy webserver compiled-in.
@@ -73,7 +75,7 @@ RUN apt update && apt install -y jq ca-certificates
 COPY --from=php-builder-prod /go/src/app/dist/shopware-bin /shopware-bin
 
 # php.ini to be loaded by php-cli
-COPY --from=php-builder-prod /go/src/app/dist/app/php.ini /lib/php.ini
+COPY --from=php-builder-prod /go/src/app/dist/app/php.ini /php.ini
 USER ${UID}:${GID}
 ENTRYPOINT ["/shopware-bin"]
 
