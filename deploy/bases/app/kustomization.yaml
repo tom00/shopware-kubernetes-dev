@@ -11,3 +11,4 @@ resources:
 - ingress.yaml
 #- message-consumer.yaml
 #- job-scheduler.yaml
+- app-server-dev.yaml

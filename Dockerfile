@@ -55,10 +55,10 @@ COPY php.ini.production /go/src/app/dist/app/php.ini
 WORKDIR /go/src/app/
 
 # Remove pre-compiled php-static library and build the new binary
-#RUN rm -Rf dist/static-php-cli/ \
-#    && EMBED=dist/app/ ./build-static.sh
+RUN rm -Rf dist/static-php-cli/ \
+    && EMBED=dist/app/ ./build-static.sh
 
-RUN EMBED=dist/app/ ./build-static.sh
+# RUN EMBED=dist/app/ ./build-static.sh
 
 # Compress the executable.
 # Compression level=7 is a good balance between the compression ratio and speed.
@@ -83,6 +83,7 @@ ENTRYPOINT ["/shopware-bin"]
 FROM dunglas/frankenphp:1.2.5-php8.3.12-bookworm AS app-dev
 ENV PROJECT_ROOT=/app
 ENV PHP_EXTENSIONS="amqp,apcu,bcmath,bz2,calendar,ctype,curl,dba,dom,exif,fileinfo,filter,gd,gmp,gettext,iconv,igbinary,intl,ldap,mbstring,mysqli,mysqlnd,opcache,openssl,pcntl,pdo,pdo_mysql,pdo_sqlite,phar,posix,protobuf,readline,redis,session,shmop,simplexml,soap,sockets,sodium,sqlite3,ssh2,sysvmsg,sysvsem,sysvshm,tidy,tokenizer,xlswriter,xml,xmlreader,xmlwriter,zip,zlib,yaml,zstd"
+ENV CADDY_GLOBAL_OPTIONS=debug
 ENV UID=33
 ENV GID=33
 SHELL ["/bin/bash", "-c"]
@@ -98,6 +99,8 @@ RUN apt update && apt install -y libxml2-dev libcurl4-openssl-dev jq \
     # Select extensions which haven't been already installed.
     && EXT=$(comm -23 <(echo "${REQUIRED_EXT}") <(echo "${INSTALLED_EXT}") | tr '\n' ' ') \
     && install-php-extensions ${EXT} \
+    && pecl install xdebug \
+    && docker-php-ext-enable xdebug \
     && ln -s /usr/local/bin/frankenphp /shopware-bin \
     && mkdir -p /data/caddy/ \
     && chown ${UID}:${GID} /data/caddy/

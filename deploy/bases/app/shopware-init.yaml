@@ -120,8 +120,8 @@ spec:
               until curl -kISs --fail ${OPENSEARCH_URL}; do         
                 i=$((i+1))
                 
-                # 120s timeout
-                if [ $i -eq 60 ]; then
+                # 180s timeout
+                if [ $i -eq 90 ]; then
                   exit 1
                 fi
                 sleep 2
@@ -155,7 +155,7 @@ spec:
                 set -ex
                 $console_bin system:install
               fi
-                            
+              
               # sync apps status
               $console_bin app:refresh -f -a -n
               
@@ -204,4 +204,4 @@ spec:
             runAsUser: 33
             runAsGroup: 33
       restartPolicy: OnFailure
-  backoffLimit: 8
+  backoffLimit: 12
