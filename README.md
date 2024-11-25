@@ -40,6 +40,10 @@ Shopware cluster requires the following components to be available upfront:
 * [Secret generator](https://github.com/mittwald/kubernetes-secret-generator) to automatically generate passwords.
 * [Sealed secrets](https://github.com/bitnami-labs/sealed-secrets) to encrypt secrets and store encrypted in the repository.
 
+## Setup in-cluster domain
+
+Follow the instructions on the [Ingress DNS](https://minikube.sigs.k8s.io/docs/handbook/addons/ingress-dns).
+
 ## MinIO public readonly policy
 ```json
 {
