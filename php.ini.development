@@ -10,3 +10,11 @@ memory_limit=512M
 
 apc.shm_segments=1
 apc.shm_size=128M
+
+xdebug.mode=debug,coverage
+xdebug.start_with_request=yes
+xdebug.client_host=host.docker.internal
+xdebug.discover_client_host=1
+xdebug.log_level=0
+xdebug.show_error_trace=1
+xdebug.show_exception_trace=1

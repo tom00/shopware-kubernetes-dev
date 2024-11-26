@@ -44,6 +44,23 @@ Shopware cluster requires the following components to be available upfront:
 
 Follow the instructions on the [Ingress DNS](https://minikube.sigs.k8s.io/docs/handbook/addons/ingress-dns).
 
+## Build and run on Minikube using skaffold
+First delete shopware-init job if exists
+```shell
+kubectl delete job/shopware-init -n shopware
+```
+Then run
+```shell
+skaffold run --force=true --tolerate-failures-until-deadline=tru
+```
+## Access MinIO GUI
+```shell
+kubectl port-forward -n shopware pod/minio-shopware-pool0-0 9443:9443
+```
+The GUI is available at https://localhost:9443
+
+The default username and password are: `minio:minio123`.
+
 ## MinIO public readonly policy
 ```json
 {
@@ -83,4 +100,15 @@ Follow the instructions on the [Ingress DNS](https://minikube.sigs.k8s.io/docs/h
       }        
     ]
 }
+```
+
+## Reverse tunnel for Xdebug using ktunnel  
+
+```shell
+ktunnel inject deployment app-server-dev 9003
+```
+
+## Port forward shopware dev server
+```shell
+kubectl port-forward deploy/app-server-dev -n shopware 8000:8000
 ```
