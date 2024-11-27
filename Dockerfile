@@ -71,7 +71,12 @@ FROM debian:bookworm-slim AS app-prod
 ENV UID=33
 ENV GID=33
 
-RUN apt update && apt install -y jq ca-certificates
+RUN apt update \
+    && apt install -y jq ca-certificates \
+    # create www-data user's homedir.
+    && mkdir -p /var/www \
+    && chown ${UID}:${GID} /var/www
+
 COPY --from=php-builder-prod /go/src/app/dist/shopware-bin /shopware-bin
 
 # php.ini to be loaded by php-cli

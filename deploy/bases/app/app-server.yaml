@@ -80,6 +80,21 @@ spec:
             limits:
               cpu: 1000m
               memory: 1Gi
+          volumeMounts:
+            - mountPath: /tmp
+              name: tmpdir
+            - mountPath: /var/www
+              name: homedir
           securityContext:
             runAsUser: 33
             runAsGroup: 33
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+      restartPolicy: Always
+      volumes:
+        - name: tmpdir
+          emptyDir:
+            sizeLimit: 1Gi
+        - name: homedir
+          emptyDir:
+            sizeLimit: 16Mi

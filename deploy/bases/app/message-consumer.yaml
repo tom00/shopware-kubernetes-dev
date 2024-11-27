@@ -61,8 +61,16 @@ spec:
             limits:
               cpu: 1000m
               memory: 1Gi
+          volumeMounts:
+            - mountPath: /tmp
+              name: tmpdir
           securityContext:
             runAsUser: 33
             runAsGroup: 33
             runAsNonRoot: true
+            readOnlyRootFilesystem: true
       restartPolicy: Always
+      volumes:
+        - name: tmpdir
+          emptyDir:
+            sizeLimit: 1Gi
