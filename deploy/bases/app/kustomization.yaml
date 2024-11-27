@@ -9,6 +9,6 @@ resources:
 - shopware-init.yaml
 - app-server.yaml
 - ingress.yaml
-#- message-consumer.yaml
-#- job-scheduler.yaml
+- message-consumer.yaml
+- job-scheduler.yaml
 - app-server-dev.yaml

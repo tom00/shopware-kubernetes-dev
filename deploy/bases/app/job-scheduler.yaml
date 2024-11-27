@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: job-scheduler
+  labels:
+    app: shopware
+    component: async
+spec:
+  selector:
+    matchLabels:
+      app: shopware
+      component: async
+  template:
+    metadata:
+      labels:
+        app: shopware
+        component: async
+    spec:
+      securityContext:
+        fsGroup: 33
+      containers:
+        - name: job-scheduler
+          image: kiweeteam/franken-shopware
+          args:
+            - php-cli
+            - bin/ci
+            - scheduled-task:run
+            - --memory-limit=512M
+            - --time-limit=295
+            - -vv
+          envFrom:
+            - configMapRef:
+                name: shopware-app-config
+            - secretRef:
+                name: shopware-app-config
+            - secretRef:
+                name: database-credentials
+            - secretRef:
+                name: shopware-credentials
+          env:
+            - name: SHOPWARE_ADMINISTRATION_PATH_NAME
+              value: "admin_$(SHOPWARE_ADMINISTRATION_PATH_SUFFIX)"
+            - name: DATABASE_URL
+              value: "mysql://$(MYSQL_USER):$(MYSQL_PASSWORD)@$(MYSQL_HOST):$(MYSQL_PORT)/$(MYSQL_DATABASE)"
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  key: CONSOLE_ACCESS_KEY
+                  name: shopware-s3
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: CONSOLE_SECRET_KEY
+                  name: shopware-s3
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 1000m
+              memory: 1Gi
+          securityContext:
+            runAsUser: 33
+            runAsGroup: 33
+            runAsNonRoot: true
+      restartPolicy: Always
