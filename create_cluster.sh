@@ -15,10 +15,10 @@ else
 fi
 
 minikube start \
-	--kubernetes-version=v1.30.0 \
+	--kubernetes-version=v1.31.0 \
 	--vm-driver=${VM} \
-	--cpus=2 \
-	--memory=6G \
+	--cpus=4 \
+	--memory=7G \
 	--disk-size=30G \
 	--network-plugin=cni --cni=calico
 	minikube addons enable default-storageclass

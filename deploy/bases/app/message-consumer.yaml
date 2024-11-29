@@ -6,6 +6,7 @@ metadata:
     app: shopware
     component: async
 spec:
+  replicas: 1
   selector:
     matchLabels:
       app: shopware
@@ -26,7 +27,6 @@ spec:
             - bin/ci
             - messenger:consume
             - --memory-limit=512M
-            - --time-limit=295
             - -vv
             - async
             - low_priority
