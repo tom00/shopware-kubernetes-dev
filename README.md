@@ -80,7 +80,7 @@ kubectl delete job/shopware-init -n shopware
 ```
 Then run
 ```shell
-skaffold run --force=true --tolerate-failures-until-deadline=tru
+skaffold run --force=true --tolerate-failures-until-deadline=true
 ```
 ## Access MinIO GUI
 ```shell
@@ -129,6 +129,10 @@ The default username and password are: `minio:minio123`.
       }        
     ]
 }
+```
+## Open tunnel for storefront and media ingresses
+```shell
+minikube tunnel
 ```
 
 ## Reverse tunnel for Xdebug using ktunnel  
