@@ -66,11 +66,11 @@ kubectl edit configmap coredns -n kube-system
 
 Append the following into the `Corefile` and replace `192.168.49.2` with your actual IP address returned by `minikube ip`.
 ```
-test:53 {
-    errors
-    cache 30
-    forward . 192.168.49.2
-}
+    test:53 {
+        errors
+        cache 30
+        forward . 192.168.49.2
+    }
 ```
 
 ## Build and run on Minikube using Skaffold

@@ -2,3 +2,4 @@
 *.iml
 jwt.env
 auth.json
+.build-artifacts
