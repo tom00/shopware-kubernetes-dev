@@ -5,6 +5,7 @@ metadata:
 
 resources:
   - credentials.yaml
+  - config/init.yaml
   - database.yaml
 
 configMapGenerator:

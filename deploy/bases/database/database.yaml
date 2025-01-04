@@ -50,6 +50,10 @@ spec:
             - mountPath: /etc/mysql/conf.d/custom.cnf
               name: mycnf
               subPath: my.cnf
+              readOnly: true
+            - mountPath: /docker-entrypoint-initdb.d
+              name: init-sql
+              readOnly: true
           env:
             - name: DB_HOST
               value: db
@@ -99,6 +103,9 @@ spec:
         - name: mycnf
           configMap:
             name: mycnf
+        - name: init-sql
+          configMap:
+            name: testdb-init-sql
   volumeClaimTemplates:
     - metadata:
         name: data
