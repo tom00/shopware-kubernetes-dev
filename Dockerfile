@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # Shopware-builder base image contains all necesary tools to build Shopware with `composer`.
-FROM dunglas/frankenphp:1.2.5-php8.3.12-bookworm AS app-builder
+FROM dunglas/frankenphp:1.3.3-php8.3.14-bookworm AS app-builder
 ENV COMPOSER_HOME=/tmp/composer
 ENV PROJECT_ROOT=/app
 ENV UID=33
@@ -32,11 +32,11 @@ RUN --mount=type=secret,id=composer_auth,mode=444,dst=/app/auth.json \
 # Build dev application with dev dependencies
 FROM app-builder AS app-builder-dev
 RUN --mount=type=secret,id=composer_auth,mode=444,dst=/app/auth.json \
-    composer install --ignore-platform-reqs --dev --no-progress -a --apcu-autoloader --no-scripts \
+    composer install --ignore-platform-reqs --dev --no-progress --no-scripts \
     && echo '<?php phpinfo();' > public/info.php
 
 # Build production static binary containing Shopware, PHP and Caddy webserver compiled-in.
-FROM dunglas/frankenphp:static-builder AS php-builder-prod
+FROM dunglas/frankenphp:static-builder-1.3.3 AS php-builder-prod
 SHELL ["/bin/bash", "-c"]
 
 # build-static.sh script compresses the executable with max compression level only which is too slow
@@ -85,7 +85,7 @@ USER ${UID}:${GID}
 ENTRYPOINT ["/shopware-bin"]
 
 # Build dev image with xdebug.
-FROM dunglas/frankenphp:1.2.5-php8.3.12-bookworm AS app-dev
+FROM dunglas/frankenphp:1.3.3-php8.3.14-bookworm AS app-dev
 ENV PROJECT_ROOT=/app
 ENV PHP_EXTENSIONS="amqp,apcu,bcmath,bz2,calendar,ctype,curl,dba,dom,exif,fileinfo,filter,gd,gmp,gettext,iconv,igbinary,intl,ldap,mbstring,mysqli,mysqlnd,opcache,openssl,pcntl,pdo,pdo_mysql,pdo_sqlite,phar,posix,protobuf,readline,redis,session,shmop,simplexml,soap,sockets,sodium,sqlite3,ssh2,sysvmsg,sysvsem,sysvshm,tidy,tokenizer,xlswriter,xml,xmlreader,xmlwriter,zip,zlib,yaml,zstd"
 ENV CADDY_GLOBAL_OPTIONS=debug
@@ -108,8 +108,9 @@ RUN apt update && apt install -y libxml2-dev libcurl4-openssl-dev jq \
     && docker-php-ext-enable xdebug \
     && ln -s /usr/local/bin/frankenphp /shopware-bin \
     && mkdir -p /data/caddy/ \
-    && chown ${UID}:${GID} /data/caddy/
+    && chown ${UID}:${GID} /data/caddy/ \
+    && chown ${UID}:${GID} ${PROJECT_ROOT}
 
-WORKDIR ${PROJECT_ROOT}/public
+WORKDIR ${PROJECT_ROOT}
 USER ${UID}:${GID}
 ENTRYPOINT ["/shopware-bin"]
