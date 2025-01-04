@@ -2,7 +2,7 @@
 
 VM=docker
 CPUS=4
-MEMORY=7G
+MEMORY=8G
 
 minikube start \
 	--kubernetes-version=v1.31.0 \
