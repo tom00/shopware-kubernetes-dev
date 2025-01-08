@@ -1,0 +1,26 @@
+name: Test
+on: [push]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - uses: yokawasa/action-setup-kube-tools@v0.11.2
+        with:
+          setup-tools: |
+            kubectl
+            helm
+            kustomize
+            skaffold
+          kubectl: '1.31.2'
+          helm: '3.16.3'
+          kustomize: '5.4.2'
+          skaffold: '2.13.2'
+      - run: |
+          kubectl version --client
+          kustomize version
+          helm version
+          skaffold version
