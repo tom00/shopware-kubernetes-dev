@@ -1,9 +1,9 @@
-## Shopware-Franken-Kube Concept
-This concept is to test out Shopware PHP static build and compiled in application. All in a single binary.
+# Shopware on Kubernetes (Shopware-Kube)
+This concept is to test out Shopware PHP static executable binary on Kubernetes.
 It is based on [FrankenPHP](https://frankenphp.dev) and [static-php-cli](https://static-php.dev) projects.
-Note that a static binary is built for production environments only. 
-The dev version is based on `dunglas/frankenphp` image, because it is not possible to compile xdebug into the binary version.
-The application is copied to a container ready to be deployed to a Kubernetes cluster.
+Note that a static binary is built for production environments only, due to the xdebug can't work with a static binary. 
+Therefore, the development version is based on `dunglas/frankenphp` image instead.
+Read our article [Shopware development and debug on Kubernetes](https://kiwee.eu/blog/shopware-6-development-on-kubernetes/) for more details.
 
 ## Build container images
 
@@ -33,11 +33,11 @@ docker run --rm --name=shopware-bin -p 8000:8000 shopware-bin-dev php-server -l 
 docker run --rm --name=shopware-bin shopware-bin php-cli bin/console
 ```
 
-### Configure Kubernetes cluster
+## Requirements for Kubernetes cluster
 
-Shopware cluster requires the following components to be available upfront:
+Shopware cluster requires the following components to be available upfront in the cluster
 * Ingress controller (e.g. NGINX Ingress Controller, Traefik or HAProxy).
-* Object storage with S3 compatible API (e.g., MinIO).
+* Object storage with S3 compatible API. In this example, we use [MinIO Operator](https://min.io/docs/minio/kubernetes/upstream/operations/installation.html).
 * [Secret generator](https://github.com/mittwald/kubernetes-secret-generator) to automatically generate passwords.
 * [Sealed secrets](https://github.com/bitnami-labs/sealed-secrets) to encrypt secrets that cannot be auto-generated, so they can be securely stored in the repository.
 
@@ -48,7 +48,7 @@ Shopware cluster requires the following components to be available upfront:
 
 ### Setup in-cluster test domains
 
-Add two test domains into your hosts file.
+Add two test domains into your hosts file, one for the application, the other for media object storage.
 
 ```shell
 echo '127.0.0.1 media.test shopware.test' | sudo tee -a /etc/hosts
@@ -91,6 +91,7 @@ The GUI is available at https://localhost:9443
 The default username and password are: `minio:minio123`.
 
 ## MinIO public readonly policy
+Add this policy to the MinIO bucket `public` to make it publicly readable (on your host).
 ```json
 {
     "Version": "2012-10-17",
@@ -131,6 +132,7 @@ The default username and password are: `minio:minio123`.
 }
 ```
 ## Open tunnel for storefront and media ingresses
+It allows accessing Shopware from your host machine.
 ```shell
 minikube tunnel
 ```
