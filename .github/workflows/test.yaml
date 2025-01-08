@@ -19,8 +19,12 @@ jobs:
           helm: '3.16.3'
           kustomize: '5.4.2'
           skaffold: '2.13.2'
-      - run: |
-          kubectl version --client
-          kustomize version
-          helm version
-          skaffold version
+      - name: Create auth.json
+        run: echo '${{ secrets.COMPOSER_AUTH }}' > $GITHUB_WORKSPACE/auth.json
+      - name: Create a Kind cluster
+        uses: helm/kind-action@v1.11.0
+        with:
+          node_image: kindest/node:v1.31.2
+      - name: Build Shopware
+        run: |
+          skaffold build --file-output=.build-artifacts
