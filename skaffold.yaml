@@ -44,6 +44,11 @@ deploy:
         createNamespace: true
         wait: true
         version: 3.4.0
+        setValues:
+          image:
+            registry: ghcr.io
+            repository: belodetek/kubernetes-secret-generator # this image is multi-arch supporting both amd64 and arm64.
+            tag: 0.0.4
       - name: minio-operator
         repo: https://operator.min.io
         remoteChart: operator

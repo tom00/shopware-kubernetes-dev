@@ -127,8 +127,8 @@ spec:
               until curl -kISs --fail ${OPENSEARCH_URL}; do         
                 i=$((i+1))
 
-                # 180s timeout
-                if [ $i -eq 90 ]; then
+                # 240s timeout
+                if [ $i -eq 120 ]; then
                   exit 1
                 fi
                 sleep 2
