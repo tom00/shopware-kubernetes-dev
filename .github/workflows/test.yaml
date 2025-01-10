@@ -76,4 +76,4 @@ jobs:
 
       - name: Run smoke test
         run: |
-          skaffold verify -a .build.artifacts
+          skaffold verify -a .build-artifacts
