@@ -37,7 +37,7 @@ jobs:
 
       - name: Install Kind-optimized ingress controller
         run: |
-          kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
+          kubectl apply -f https://kind.sigs.k8s.io/examples/ingress/deploy-ingress-nginx.yaml
 
       - name: Update Cluster DNS to resolve shopware.test and media.test domains
         shell: bash
@@ -65,9 +65,11 @@ jobs:
           kubectl get configmap coredns -n kube-system -o yaml > coredns.yaml
           sed -i "/^.*kubernetes cluster.local/ i \ \ \ \ \ \ \ \ hosts {\n\ \ \ \ \ \ \ \ \ \ $INGRESS_IP shopware.test\n\ \ \ \ \ \ \ \ \ \ $INGRESS_IP media.test\n\ \ \ \ \ \ \ \ \ \ fallthrough\n\ \ \ \ \ \ \ \ }" coredns.yaml
           kubectl apply -n kube-system -f coredns.yaml
+
       - name: Build Shopware
         run: |
           skaffold build --file-output=.build-artifacts
+
       - name: Deploy Shopware to local Kind cluster
         run: |
           skaffold run --status-check=true --tolerate-failures-until-deadline=true
