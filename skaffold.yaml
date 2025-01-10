@@ -115,7 +115,7 @@ deploy:
         version: 2.16.1
         wait: true
 verify:
-  - name: Verify if Shopware is up
+  - name: smoke-test
     executionMode:
       kubernetesCluster: {}
     container:
@@ -133,4 +133,3 @@ verify:
             --retry 10 \
             --retry-all-errors \
             http://shopware.test/
-
