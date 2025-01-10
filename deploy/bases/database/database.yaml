@@ -42,7 +42,7 @@ spec:
               subPath: mysql
       containers:
         - name: db
-          image: mariadb:11.5.2
+          image: mariadb:10.11.10
           volumeMounts:
             - mountPath: /var/lib/mysql
               name: data
