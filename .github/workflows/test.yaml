@@ -77,3 +77,9 @@ jobs:
       - name: Run smoke test
         run: |
           skaffold verify -a .build-artifacts
+
+      - name: Run integration tests
+        run: |
+          # Run shopware-demo plugin tests 
+          kubectl exec svc/app-server-dev -n shopware -- \
+            /shopware-bin php-cli vendor/bin/phpunit -c vendor/kiwee/shopware-demo-plugin/phpunit.xml
