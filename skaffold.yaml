@@ -29,7 +29,7 @@ build:
 manifests:
   kustomize:
     paths:
-      - deploy/bases
+      - deploy/overlays/dev
 deploy:
   statusCheck: true
   statusCheckDeadlineSeconds: 1200
