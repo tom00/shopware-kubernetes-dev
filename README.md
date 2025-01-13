@@ -50,8 +50,14 @@ Shopware cluster requires the following components to be available upfront in th
 
 Add two test domains into your hosts file, one for the application, the other for media object storage.
 
+Mac OS
 ```shell
 echo '127.0.0.1 media.test shopware.test' | sudo tee -a /etc/hosts
+```
+
+Linux
+```shell
+echo $(minikube ip)' media.test shopware.test' | sudo tee -a /etc/hosts
 ```
 
 Get the minikube node IP address
@@ -132,7 +138,8 @@ Add this policy to the MinIO bucket `public` to make it publicly readable (on yo
 }
 ```
 ## Open tunnel for storefront and media ingresses
-It allows accessing Shopware from your host machine.
+It allows accessing Shopware from your host machine
+(not needed on a Linux host).
 ```shell
 minikube tunnel
 ```
