@@ -137,6 +137,16 @@ Add this policy to the MinIO bucket `public` to make it publicly readable (on yo
     ]
 }
 ```
+
+## Accessing Administration
+The administration URL slug has a randomly generated suffix.
+```shell
+kubectl get secret/shopware-app-config -n shopware -o jsonpath='{.data.SHOPWARE_ADMINISTRATION_PATH_SUFFIX}' | \
+base64 --decode; \
+echo
+```
+Then paste the returned suffix into the following URL `http://shopware.test/admin_<SUFFIX>`.
+
 ## Open tunnel for storefront and media ingresses
 It allows accessing Shopware from your host machine
 (not needed on a Linux host).
