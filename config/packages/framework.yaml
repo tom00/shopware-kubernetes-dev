@@ -8,23 +8,9 @@ parameters:
 framework:
   cache:
     default_redis_provider: '%env(string:default:default_redis_object_cache_url:REDIS_CACHE_OBJECT_URL)%'
-    app: cache.adapter.redis
-    system: cache.adapter.redis
+    app: cache.adapter.redis_tag_aware
+    system: cache.adapter.system
     pools:
-      cache.serializer:
-        adapter: cache.app
-      cache.annotations:
-        adapter: cache.app
-      cache.property_info:
-        adapter: cache.app
-      cache.messenger:
-        adapter: cache.app
-      cache.property_access:
-        adapter: cache.app
-      cache.rate_limiter:
-        adapter: cache.app
-      cache.validator_expression_language:
-        adapter: cache.app
       cache.tags:
         adapter: cache.app
       cache.object:
@@ -33,7 +19,7 @@ framework:
         tags: cache.tags
       cache.http:
         default_lifetime: '%env(int:default:default_cache_lifetime:SHOPWARE_HTTP_DEFAULT_TTL)%'
-        adapter: cache.adapter.redis
+        adapter: cache.adapter.redis_tag_aware
         provider: '%env(string:default:default_redis_http_cache_url:REDIS_CACHE_HTTP_URL)%'
         tags: cache.tags
   session:
