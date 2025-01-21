@@ -1,9 +1,10 @@
 # syntax=docker/dockerfile:1
 
+ARG PROJECT_ROOT=/app
 # Shopware-builder base image contains all necesary tools to build Shopware with `composer`.
 FROM dunglas/frankenphp:1.3.3-php8.3.14-bookworm AS app-builder
 ENV COMPOSER_HOME=/tmp/composer
-ENV PROJECT_ROOT=/app
+ENV PROJECT_ROOT=${PROJECT_ROOT}
 ENV UID=33
 ENV GID=33
 
@@ -86,7 +87,7 @@ ENTRYPOINT ["/shopware-bin"]
 
 # Build dev image with xdebug.
 FROM dunglas/frankenphp:1.3.3-php8.3.14-bookworm AS app-dev
-ENV PROJECT_ROOT=/app
+ENV PROJECT_ROOT=${PROJECT_ROOT}
 ENV PHP_EXTENSIONS="amqp,apcu,bcmath,bz2,calendar,ctype,curl,dba,dom,exif,fileinfo,filter,gd,gmp,gettext,iconv,igbinary,intl,ldap,mbstring,mysqli,mysqlnd,opcache,openssl,pcntl,pdo,pdo_mysql,pdo_sqlite,phar,posix,protobuf,readline,redis,session,shmop,simplexml,soap,sockets,sodium,sqlite3,ssh2,sysvmsg,sysvsem,sysvshm,tidy,tokenizer,xlswriter,xml,xmlreader,xmlwriter,zip,zlib,yaml,zstd"
 ENV CADDY_GLOBAL_OPTIONS=debug
 ENV UID=33
