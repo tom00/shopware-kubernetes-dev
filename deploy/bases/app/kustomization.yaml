@@ -5,7 +5,6 @@ metadata:
 
 resources:
 - config/app.yaml
-- config/admin-credentials.yaml
 - shopware-init.yaml
 - app-server.yaml
 - ingress.yaml

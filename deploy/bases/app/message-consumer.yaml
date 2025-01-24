@@ -160,8 +160,6 @@ spec:
                 name: shopware-app-config
             - secretRef:
                 name: database-credentials
-            - secretRef:
-                name: shopware-credentials
           env:
             - name: SHOPWARE_ADMINISTRATION_PATH_NAME
               value: "admin_$(SHOPWARE_ADMINISTRATION_PATH_SUFFIX)"

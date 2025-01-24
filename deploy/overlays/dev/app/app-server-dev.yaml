@@ -53,9 +53,11 @@ spec:
                 name: shopware-app-config
             - secretRef:
                 name: database-credentials
-            - secretRef:
-                name: shopware-credentials
           env:
+            - name: APP_ENV
+              value: "dev"
+            - name: APP_DEBUG
+              value: "1"
             - name: SHOPWARE_ADMINISTRATION_PATH_NAME
               value: "admin_$(SHOPWARE_ADMINISTRATION_PATH_SUFFIX)"
             - name: DATABASE_URL
