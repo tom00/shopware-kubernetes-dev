@@ -96,48 +96,6 @@ The GUI is available at https://localhost:9443
 
 The default username and password are: `minio:minio123`.
 
-## MinIO public readonly policy
-Add this policy to the MinIO bucket `public` to make it publicly readable (on your host).
-```json
-{
-    "Version": "2012-10-17",
-    "Statement": [
-
-      {
-        "Action": [
-          "s3:GetBucketLocation",
-          "s3:ListBucket"
-        ],
-        "Effect": "Allow",
-        "Principal": {
-          "AWS": [
-            "*"
-          ]
-        },
-        "Resource": [
-          "arn:aws:s3:::public"
-        ],
-        "Sid": ""
-      },
-      {
-        "Action": [
-          "s3:GetObject"
-        ],
-        "Effect": "Allow",
-        "Principal": {
-          "AWS": [
-            "*"
-          ]
-        },
-        "Resource": [
-          "arn:aws:s3:::public/*"
-        ],
-        "Sid": ""
-      }        
-    ]
-}
-```
-
 ## Accessing Administration
 The administration URL slug has a randomly generated suffix.
 ```shell

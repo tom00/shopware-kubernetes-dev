@@ -73,3 +73,63 @@ spec:
   users:
     - name: shopware-s3
 
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: public-bucket-policy
+data:
+  policy.json: |
+    {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Effect": "Allow",
+          "Principal": "*",
+          "Action": [
+            "s3:GetObject"
+          ],
+          "Resource": [
+            "arn:aws:s3:::public/*"
+          ]
+        }
+      ]
+    }
+
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: apply-public-bucket-policy
+spec:
+  backoffLimit: 10
+  template:
+    spec:
+      containers:
+        - name: mc
+          image: minio/mc:RELEASE.2025-01-17T23-25-50Z
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              set -ex
+              mc alias set shopware https://minio-shopware-hl.shopware.svc.cluster.local:9000 $MINIO_ACCESS_KEY $MINIO_SECRET_KEY             
+              mc anonymous set-json /config/policy.json shopware/public
+          env:
+            - name: MINIO_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: shopware-s3
+                  key: CONSOLE_ACCESS_KEY
+            - name: MINIO_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: shopware-s3
+                  key: CONSOLE_SECRET_KEY
+          volumeMounts:
+            - name: policy-config
+              mountPath: /config
+      restartPolicy: OnFailure
+      volumes:
+        - name: policy-config
+          configMap:
+            name: public-bucket-policy

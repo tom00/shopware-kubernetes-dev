@@ -57,7 +57,7 @@ deploy:
         namespace: minio
         createNamespace: true
         wait: true
-        version: 6.0.3
+        version: 7.0.0
       - name: minio-tenant
         repo: https://operator.min.io
         remoteChart: tenant
