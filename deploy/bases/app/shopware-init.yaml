@@ -142,18 +142,17 @@ spec:
           args:
             - -c
             - |
-              set -x
+              set -ex
               console_bin="/shopware-bin php-cli bin/ci"
               
               # check if shopware was installed already
-              $console_bin system:is-installed              
-              if [ $? -ne 0 ]; then
-                echo "Running first time install."
-                set -ex
-                $console_bin system:install --basic-setup
-              else
-                set -ex
+                         
+              if $console_bin system:is-installed; then
+                echo "Running Shopware updates."
                 $console_bin system:install
+              else
+                echo "Running Shopware first time install."                
+                $console_bin system:install --basic-setup
               fi
               
               # sync apps status
