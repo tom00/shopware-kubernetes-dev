@@ -5,12 +5,14 @@ metadata:
   labels:
     app: shopware
     component: async
+    part: scheduler
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: shopware
       component: async
+      part: scheduler
   template:
     metadata:
       labels:

@@ -11,11 +11,13 @@ spec:
     matchLabels:
       app: shopware
       component: async
+      part: consumer
   template:
     metadata:
       labels:
         app: shopware
         component: async
+        part: consumer
     spec:
       securityContext:
         fsGroup: 33
