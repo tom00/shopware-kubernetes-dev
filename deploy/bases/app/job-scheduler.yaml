@@ -18,6 +18,7 @@ spec:
       labels:
         app: shopware
         component: async
+        part: scheduler
     spec:
       securityContext:
         fsGroup: 33
