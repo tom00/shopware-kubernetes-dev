@@ -42,7 +42,7 @@ jobs:
       - name: Update Cluster DNS to resolve shopware.test and media.test domains
         shell: bash
         run: |
-          # Fetch ingress IP address.
+          # Fetch ingress IP address - max 20 attempts.
           for i in {1..20}; do
             INGRESS_IP=$(kubectl get svc ingress-nginx-controller \
               -n ingress-nginx \
@@ -59,6 +59,7 @@ jobs:
           done
           if [ $i -eq 20 ]; then
               echo "Error: Ingress IP not valid after 20 attempts."
+              exit 1
           fi
           
           # Update CoreDNS configmap to resolve shopware.test and media.test domains.
