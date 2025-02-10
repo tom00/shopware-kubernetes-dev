@@ -75,7 +75,7 @@ jobs:
         run: |
           skaffold run --status-check=true --tolerate-failures-until-deadline=true
 
-      - name: Run smoke test
+      - name: Run E2E tests
         run: |
           skaffold verify -a .build-artifacts
 
