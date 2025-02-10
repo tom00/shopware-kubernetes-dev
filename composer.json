@@ -10,7 +10,7 @@
     "shopware/storefront": "*",
     "symfony/flex": "~2",
     "league/flysystem-async-aws-s3": "^3.0",
-    "store.shopware.com/swagplatformdemodata": "^2.0",
+    "swag/demo-data": "^2.0",
     "kiwee/shopware-demo-plugin": "^0.0.3"
   },
   "require-dev": {
