@@ -55,11 +55,10 @@ COPY php.ini.production /go/src/app/dist/app/php.ini
 WORKDIR /go/src/app/
 
 # Remove pre-compiled php-static library and build the new binary
-#RUN rm -Rf dist/static-php-cli/ \
-#    && EMBED=dist/app/ ./build-static.sh
+RUN rm -Rf dist/static-php-cli/ \
+    && EMBED=dist/app/ ./build-static.sh
 
-# Build the static binary with the pre-compiled php-static library.
-RUN EMBED=dist/app/ ./build-static.sh
+# RUN EMBED=dist/app/ ./build-static.sh
 
 # Compress the executable.
 # Compression level=7 is a good balance between the compression ratio and speed.
