@@ -21,6 +21,11 @@ jobs:
           kustomize: '5.4.2'
           skaffold: '2.13.2'
 
+      - name: Check free space
+        run: |
+          echo "Free space:"
+          df -h
+
       - name: Cache skaffold artifacts and config
         uses: actions/cache@v4
         with:
@@ -71,9 +76,19 @@ jobs:
         run: |
           skaffold build --file-output=.build-artifacts
 
+      - name: Check free space
+        run: |
+          echo "Free space:"
+          df -h
+
       - name: Deploy Shopware to local Kind cluster
         run: |
           skaffold run --status-check=true --tolerate-failures-until-deadline=true
+
+      - name: Check free space
+        run: |
+          echo "Free space:"
+          df -h
 
       - name: Run E2E tests
         run: |
