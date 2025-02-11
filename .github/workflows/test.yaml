@@ -6,6 +6,7 @@ jobs:
     steps:
       - name: Maximize build space
         run: |
+          # Remove unnecessary tools that are not needed for build & test
           sudo rm -rf /usr/local/.ghcup
           sudo rm -rf /opt/hostedtoolcache/CodeQL
           sudo rm -rf /usr/local/lib/android/sdk/ndk
@@ -85,26 +86,21 @@ jobs:
         run: |
           skaffold build --file-output=.build-artifacts
 
-      - name: Check free space
-        run: |
-          echo "Free space:"
-          df -h
 
       - name: Deploy Shopware to local Kind cluster
         run: |
           skaffold run --status-check=true --tolerate-failures-until-deadline=true
 
-      - name: Check free space
+      - name: Wait for Shopware to be ready
         run: |
-          echo "Free space:"
-          df -h
-
-      - name: Run E2E tests
-        run: |
-          skaffold verify -a .build-artifacts
+          kubectl wait --for=condition=complete job/shopware-init -n shopware --timeout=300s
 
       - name: Run integration tests
         run: |
           # Run shopware-demo plugin tests 
           kubectl exec svc/app-server-dev -n shopware -- \
             /shopware-bin php-cli vendor/bin/phpunit -c vendor/kiwee/shopware-demo-plugin/phpunit.xml
+
+      - name: Run E2E tests
+        run: |
+          skaffold verify -a .build-artifacts
