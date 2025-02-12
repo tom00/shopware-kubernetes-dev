@@ -9,6 +9,10 @@ build:
         docker:
           dockerfile: Dockerfile
           target: app-prod
+          cacheFrom:
+            - kiweeteam/franken-shopware
+          buildArgs:
+            BUILDKIT_INLINE_CACHE: "1"
           secrets:
             - id: composer_auth
               src: auth.json
@@ -19,6 +23,10 @@ build:
               dest: "/app/custom"
         docker:
           dockerfile: Dockerfile
+          cacheFrom:
+            - kiweeteam/franken-shopware-dev
+          buildArgs:
+            BUILDKIT_INLINE_CACHE: "1"
           target: app-dev
           secrets:
             - id: composer_auth
@@ -133,9 +141,11 @@ verify:
           - |
             set -e
             echo "Waiting until the homepage is accessible..."
-            curl -kILSs --fail --retry 10 --retry-all-errors http://shopware.test/            
+            curl -kILSs --fail --retry 10 --retry-all-errors http://shopware.test/
+            echo "GitHub summary = ${GITHUB_STEP_SUMMARY}"
             echo "Running E2E tests..."
             npx playwright test
+            echo "GitHub summary = ${GITHUB_STEP_SUMMARY}"
             echo "E2E tests finished."
     executionMode:
       kubernetesCluster:

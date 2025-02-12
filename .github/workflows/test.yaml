@@ -103,4 +103,5 @@ jobs:
 
       - name: Run E2E tests
         run: |
-          skaffold verify -a .build-artifacts
+          echo "GITHUB_STEP_SUMMARY=${{ github.step_summary }}" > verify.env 
+          skaffold verify -a .build-artifacts --env-file=verify.env
