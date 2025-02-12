@@ -55,7 +55,7 @@ jobs:
         uses: helm/kind-action@v1.11.0
         with:
           node_image: kindest/node:v1.32.0
-          config: ${GITHUB_WORKSPACE}/kind-config.yaml
+          config: ${{ github.workspace }}/kind-config.yaml
 
       - name: Install Kind-optimized ingress controller
         run: |
