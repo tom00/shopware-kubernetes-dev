@@ -107,25 +107,6 @@ deploy:
                       - ALL
                   seccompProfile:
                     type: RuntimeDefault
-      - name: cert-manager
-        remoteChart: cert-manager
-        namespace: cert-manager
-        createNamespace: true
-        repo: https://charts.jetstack.io
-        version: v1.15.3
-        wait: true
-        setValues:
-          installCRDs: true
-          ingressShim:
-            defaultIssuerKind: ClusterIssuer
-            defaultIssuerName: selfsigned
-      - name: sealed-secrets
-        remoteChart: sealed-secrets
-        namespace: sealed-secrets
-        createNamespace: true
-        repo: https://bitnami-labs.github.io/sealed-secrets
-        version: 2.16.1
-        wait: true
 verify:
   - name: e2e
     container:
@@ -134,6 +115,8 @@ verify:
         env:
           - name: CI
             value: true
+          - name: GITHUB_STEP_SUMMARY
+            value: "/app/step_summary"
         command:
           - /bin/sh
         args:
@@ -143,9 +126,10 @@ verify:
             echo "Waiting until the homepage is accessible..."
             curl -kILSs --fail --retry 10 --retry-all-errors http://shopware.test/
             echo "GitHub summary = ${GITHUB_STEP_SUMMARY}"
+            ls -la /app
             echo "Running E2E tests..."
             npx playwright test
-            echo "GitHub summary = ${GITHUB_STEP_SUMMARY}"
+            ls -la /app
             echo "E2E tests finished."
     executionMode:
       kubernetesCluster:

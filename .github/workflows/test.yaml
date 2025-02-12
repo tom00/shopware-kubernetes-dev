@@ -102,6 +102,11 @@ jobs:
             /shopware-bin php-cli vendor/bin/phpunit -c vendor/kiwee/shopware-demo-plugin/phpunit.xml
 
       - name: Run E2E tests
+        env:
+          GITHUB_STEP_SUMMARY: ${{ github.step_summary }}
         run: |
-          echo "GITHUB_STEP_SUMMARY=${{ github.step_summary }}" > verify.env 
+          # subst GITHUB_STEP_SUMMARY in the e2e job with the actual file path
+          envsubst < deploy/overlays/dev/app/e2e.yaml | tee deploy/overlays/dev/app/e2e.yaml
+          
+          # run e2e tests
           skaffold verify -a .build-artifacts --env-file=verify.env

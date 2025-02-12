@@ -16,4 +16,13 @@ spec:
                 name: shopware-app-config
             - secretRef:
                 name: shopware-app-config
+          volumeMounts:
+            - name: github-step-summary
+              mountPath: /app/step_summary
       restartPolicy: Never
+      volumes:
+        - name: github-step-summary
+          hostPath:
+            # This value will be substituted by envsubst with the value of GITHUB_STEP_SUMMARY.
+            path: "${GITHUB_STEP_SUMMARY}"
+            type: File
