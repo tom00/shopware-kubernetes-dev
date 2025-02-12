@@ -36,12 +36,6 @@ jobs:
           echo "Free space:"
           df -h
 
-      - name: Cache skaffold artifacts and config
-        uses: actions/cache@v4
-        with:
-          path: ~/.skaffold/
-          key: fixed-${{ github.sha }}
-
       - name: Create auth.json
         run: echo '${{ secrets.COMPOSER_AUTH }}' > $GITHUB_WORKSPACE/auth.json
 
@@ -109,4 +103,4 @@ jobs:
           envsubst < deploy/overlays/dev/app/e2e.yaml | tee deploy/overlays/dev/app/e2e.yaml
           
           # run e2e tests
-          skaffold verify -a .build-artifacts --env-file=verify.env
+          skaffold verify -a .build-artifacts
