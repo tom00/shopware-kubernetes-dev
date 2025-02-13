@@ -117,6 +117,8 @@ verify:
             value: true
           - name: GITHUB_STEP_SUMMARY
             value: "/app/step_summary"
+          - name: GITHUB_ACTIONS
+            value: true
         command:
           - /bin/sh
         args:
