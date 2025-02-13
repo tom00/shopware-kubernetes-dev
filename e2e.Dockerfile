@@ -9,6 +9,8 @@ RUN npm install && \
     npx playwright install && \
     npx playwright install-deps
 
-RUN chown -R node:node /app
-COPY --chown=node:node e2e/BaseTest.ts BaseTest.ts
-COPY --chown=node:node e2e/tests tests
+RUN chown -R 1001:node /app
+COPY --chown=1001:node e2e/BaseTest.ts BaseTest.ts
+COPY --chown=1001:node e2e/tests tests
+# GitHub Actions UID
+USER 1001
