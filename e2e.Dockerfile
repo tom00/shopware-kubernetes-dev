@@ -1,16 +1,20 @@
 FROM node:23-slim
-# install curl
-RUN apt-get update && apt-get install -y curl
+# install dependencies and change user & group id to 1001 for GitHub Actions compatibility
+RUN apt-get update && apt-get install -y curl && \
+    usermod -u 1001 node && \
+    groupmod -g 1001 node && \
+    chown -R 1001:1001 /home/node
+
 WORKDIR /app
-COPY e2e/package.json package.json
-COPY e2e/playwright.config.ts playwright.config.ts
+COPY --chown=node:node e2e/package.json package.json
+COPY --chown=node:node e2e/playwright.config.ts playwright.config.ts
 
 RUN npm install && \
     npx playwright install && \
-    npx playwright install-deps
+    npx playwright install-deps && \
+    cp -R /root/.cache /home/node/.cache
 
-RUN chown -R 1001:node /app
-COPY --chown=1001:node e2e/BaseTest.ts BaseTest.ts
-COPY --chown=1001:node e2e/tests tests
-# GitHub Actions UID
-USER 1001
+RUN chown -R node:node /app
+COPY --chown=node:node e2e/BaseTest.ts BaseTest.ts
+COPY --chown=node:node e2e/tests tests
+USER node
