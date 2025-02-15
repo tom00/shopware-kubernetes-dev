@@ -35,6 +35,7 @@ jobs:
         run: |
           echo "Free space:" > ${{ github.step_summary }}
           df -h >> ${{ github.step_summary }}
+          echo "UID=${UID}" >> ${{ github.step_summary }}
 
 #      - name: Create auth.json
 #        run: echo '${{ secrets.COMPOSER_AUTH }}' > $GITHUB_WORKSPACE/auth.json
