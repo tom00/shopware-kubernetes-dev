@@ -19,6 +19,13 @@ jobs:
         with:
           fetch-depth: 0
 
+      - uses: actions/cache/restore@v4
+        id: cache
+        with:
+          path: ~/.skaffold
+          key: fixed-${{ runner.os }}
+          fail-on-cache-miss: false
+
       - uses: yokawasa/action-setup-kube-tools@v0.11.2
         with:
           setup-tools: |
@@ -93,6 +100,11 @@ jobs:
         run: |
           skaffold build --file-output=.build-artifacts
 
+      - uses: actions/cache/save@v4
+        id: cache
+        with:
+          path: ~/.skaffold
+          key: fixed-${{ runner.os }}
 
       - name: Deploy Shopware to local Kind cluster
         run: |
