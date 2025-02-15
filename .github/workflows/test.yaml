@@ -32,86 +32,88 @@ jobs:
           skaffold: '2.13.2'
 
       - name: Check free space
-        run: |
-          echo "Free space:" > ${{ github.step_summary }}
-          df -h >> ${{ github.step_summary }}
-          echo "UID=${UID}" >> ${{ github.step_summary }}
+        run: |          
+          echo "<b>UID=</b>${UID}" >> ${{ github.step_summary }}
 
-#      - name: Create auth.json
-#        run: echo '${{ secrets.COMPOSER_AUTH }}' > $GITHUB_WORKSPACE/auth.json
-#
-#      - name: Create Kind config to mount step summary file
-#        run: |
-#          cat <<EOF > ${GITHUB_WORKSPACE}/kind-config.yaml
-#          kind: Cluster
-#          apiVersion: kind.x-k8s.io/v1alpha4
-#          nodes:
-#            - role: control-plane
-#              extraMounts:
-#                - hostPath: ${{ github.step_summary }}
-#                  containerPath: /step_summary
-#          EOF
-#
-#      - name: Create a Kind cluster
-#        uses: helm/kind-action@v1.11.0
-#        with:
-#          node_image: kindest/node:v1.32.0
-#          config: ${{ github.workspace }}/kind-config.yaml
-#
-#      - name: Install Kind-optimized ingress controller
-#        run: |
-#          cat ${GITHUB_WORKSPACE}/kind-config.yaml
-#          kubectl apply -f https://kind.sigs.k8s.io/examples/ingress/deploy-ingress-nginx.yaml
-#
-#      - name: Update Cluster DNS to resolve shopware.test and media.test domains
-#        shell: bash
-#        run: |
-#          # Fetch ingress IP address - max 20 attempts.
-#          for i in {1..20}; do
-#            INGRESS_IP=$(kubectl get svc ingress-nginx-controller \
-#              -n ingress-nginx \
-#              -o jsonpath='{.spec.clusterIP}')
-#
-#            # Check if $INGRESS_IP matches a simplistic IPv4 pattern: x.x.x.x
-#            if [[ $INGRESS_IP =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-#              # Found the valid IP address.
-#              break
-#            else
-#              echo "Ingress IP not valid yet. Attempt: $i/20. Sleeping 1s..."
-#              sleep 1
-#            fi
-#          done
-#          if [ $i -eq 20 ]; then
-#              echo "Error: Ingress IP not valid after 20 attempts."
-#              exit 1
-#          fi
-#
-#          # Update CoreDNS configmap to resolve shopware.test and media.test domains.
-#          kubectl get configmap coredns -n kube-system -o yaml > coredns.yaml
-#          sed -i "/^.*kubernetes cluster.local/ i \ \ \ \ \ \ \ \ hosts {\n\ \ \ \ \ \ \ \ \ \ $INGRESS_IP shopware.test\n\ \ \ \ \ \ \ \ \ \ $INGRESS_IP media.test\n\ \ \ \ \ \ \ \ \ \ fallthrough\n\ \ \ \ \ \ \ \ }" coredns.yaml
-#          kubectl apply -n kube-system -f coredns.yaml
-#
-#      - name: Build Shopware
-#        run: |
-#          skaffold build --file-output=.build-artifacts
-#
-#
-#      - name: Deploy Shopware to local Kind cluster
-#        run: |
-#          skaffold run --status-check=true --tolerate-failures-until-deadline=true
-#
-#      - name: Wait for Shopware to be ready
-#        run: |
-#          kubectl wait --for=condition=complete job/shopware-init -n shopware --timeout=300s
-#
-#      - name: Run integration tests
-#        run: |
-#          # Run shopware-demo plugin tests
-#          kubectl exec svc/app-server-dev -n shopware -- \
-#            /shopware-bin php-cli vendor/bin/phpunit -c vendor/kiwee/shopware-demo-plugin/phpunit.xml
-#
-#      - name: Run E2E tests
-#        env:
-#          GITHUB_STEP_SUMMARY: ${{ github.step_summary }}
-#        run: |
-#          skaffold verify -a .build-artifacts
+      - name: Create auth.json
+        run: echo '${{ secrets.COMPOSER_AUTH }}' > $GITHUB_WORKSPACE/auth.json
+
+      - name: Create Kind config to mount step summary file
+        run: |
+          cat <<EOF > ${GITHUB_WORKSPACE}/kind-config.yaml
+          kind: Cluster
+          apiVersion: kind.x-k8s.io/v1alpha4
+          nodes:
+            - role: control-plane
+              extraMounts:
+                - hostPath: ${{ github.step_summary }}
+                  containerPath: /step_summary
+          EOF
+
+      - name: Create a Kind cluster
+        uses: helm/kind-action@v1.11.0
+        with:
+          node_image: kindest/node:v1.32.0
+          config: ${{ github.workspace }}/kind-config.yaml
+
+      - name: Install Kind-optimized ingress controller
+        run: |
+          cat ${GITHUB_WORKSPACE}/kind-config.yaml
+          kubectl apply -f https://kind.sigs.k8s.io/examples/ingress/deploy-ingress-nginx.yaml
+
+      - name: Update Cluster DNS to resolve shopware.test and media.test domains
+        shell: bash
+        run: |
+          # Fetch ingress IP address - max 20 attempts.
+          for i in {1..20}; do
+            INGRESS_IP=$(kubectl get svc ingress-nginx-controller \
+              -n ingress-nginx \
+              -o jsonpath='{.spec.clusterIP}')
+
+            # Check if $INGRESS_IP matches a simplistic IPv4 pattern: x.x.x.x
+            if [[ $INGRESS_IP =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              # Found the valid IP address.
+              break
+            else
+              echo "Ingress IP not valid yet. Attempt: $i/20. Sleeping 1s..."
+              sleep 1
+            fi
+          done
+          if [ $i -eq 20 ]; then
+              echo "Error: Ingress IP not valid after 20 attempts."
+              exit 1
+          fi
+
+          # Update CoreDNS configmap to resolve shopware.test and media.test domains.
+          kubectl get configmap coredns -n kube-system -o yaml > coredns.yaml
+          sed -i "/^.*kubernetes cluster.local/ i \ \ \ \ \ \ \ \ hosts {\n\ \ \ \ \ \ \ \ \ \ $INGRESS_IP shopware.test\n\ \ \ \ \ \ \ \ \ \ $INGRESS_IP media.test\n\ \ \ \ \ \ \ \ \ \ fallthrough\n\ \ \ \ \ \ \ \ }" coredns.yaml
+          kubectl apply -n kube-system -f coredns.yaml
+
+      - name: Build Shopware
+        run: |
+          skaffold build --file-output=.build-artifacts
+
+
+      - name: Deploy Shopware to local Kind cluster
+        run: |
+          skaffold run --status-check=true --tolerate-failures-until-deadline=true
+
+      - name: Wait for Shopware to be ready
+        run: |
+          kubectl wait --for=condition=complete job/shopware-init -n shopware --timeout=300s
+
+      - name: Run integration tests
+        run: |
+          # Run shopware-demo plugin tests
+          kubectl exec svc/app-server-dev -n shopware -- \
+            /shopware-bin php-cli vendor/bin/phpunit -c vendor/kiwee/shopware-demo-plugin/phpunit.xml
+
+      - name: Run E2E tests
+        env:
+          GITHUB_STEP_SUMMARY: ${{ github.step_summary }}
+        run: |
+          skaffold verify -a .build-artifacts
+
+      - name: Summary
+        run: |          
+          echo "Shopware E2E tests passed." >> ${{ github.step_summary }}

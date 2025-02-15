@@ -132,6 +132,7 @@ verify:
             echo "Running E2E tests..."
             npx playwright test
             ls -la /app
+            cat ${GITHUB_STEP_SUMMARY}"
             echo "E2E tests finished."
     executionMode:
       kubernetesCluster:
