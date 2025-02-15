@@ -33,8 +33,8 @@ jobs:
 
       - name: Check free space
         run: |
-          echo "Free space:" > {{ github.summary }} 
-          df -h >> {{ github.summary }}
+          echo "Free space:" > ${{ github.step_summary }}
+          df -h >> ${{ github.step_summary }}
 
 #      - name: Create auth.json
 #        run: echo '${{ secrets.COMPOSER_AUTH }}' > $GITHUB_WORKSPACE/auth.json
