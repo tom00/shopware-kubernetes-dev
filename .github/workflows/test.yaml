@@ -127,3 +127,4 @@ jobs:
       - name: Summary
         run: |          
           echo "Shopware E2E tests passed." >> ${{ github.step_summary }}
+          cat ${{ github.step_summary }}
