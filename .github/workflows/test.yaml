@@ -37,30 +37,13 @@ jobs:
           kustomize: '5.4.2'
           skaffold: '2.13.2'
 
-      - name: Check free space
-        run: |          
-          echo "<b>UID=</b>${UID}" >> ${{ github.step_summary }}
-
       - name: Create auth.json
         run: echo '${{ secrets.COMPOSER_AUTH }}' > $GITHUB_WORKSPACE/auth.json
-
-      - name: Create Kind config to mount step summary file
-        run: |
-          cat <<EOF > ${GITHUB_WORKSPACE}/kind-config.yaml
-          kind: Cluster
-          apiVersion: kind.x-k8s.io/v1alpha4
-          nodes:
-            - role: control-plane
-              extraMounts:
-                - hostPath: ${{ github.step_summary }}
-                  containerPath: /step_summary
-          EOF
 
       - name: Create a Kind cluster
         uses: helm/kind-action@v1.11.0
         with:
           node_image: kindest/node:v1.32.0
-          config: ${{ github.workspace }}/kind-config.yaml
 
       - name: Install Kind-optimized ingress controller
         run: |
@@ -122,9 +105,12 @@ jobs:
         env:
           GITHUB_STEP_SUMMARY: ${{ github.step_summary }}
         run: |
+          set +e
           skaffold verify -a .build-artifacts
-
-      - name: Summary
-        run: |          
-          echo "Shopware E2E tests passed." >> ${{ github.step_summary }}
-          cat ${{ github.step_summary }}
+          exit_code=$?
+          
+          # get the step summary and save it to the step summary file
+          kubectl create -n shopware -f deploy/overlays/dev/app/step-summary.yaml
+          kubectl wait --for=condition=complete job/output-step-summary --timeout=30s -n shopware
+          kubectl logs job/output-step-summary -n shopware >> $GITHUB_STEP_SUMMARY
+          exit $exit_code
