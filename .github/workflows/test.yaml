@@ -105,9 +105,11 @@ jobs:
           GITHUB_STEP_SUMMARY: ${{ github.step_summary }}
         run: |
           set +e
+          set -x
+          
           skaffold verify -a .build-artifacts
           exit_code=$?
-          
+          set -e
           # get the step summary and save it to the step summary file
           kubectl create -n shopware -f deploy/overlays/dev/app/step-summary.yaml
           kubectl wait --for=condition=complete job/output-step-summary --timeout=30s -n shopware
