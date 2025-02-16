@@ -20,7 +20,6 @@ jobs:
           fetch-depth: 0
 
       - uses: actions/cache/restore@v4
-        id: cache
         with:
           path: ~/.skaffold
           key: fixed-${{ runner.os }}
@@ -101,7 +100,6 @@ jobs:
           skaffold build --file-output=.build-artifacts
 
       - uses: actions/cache/save@v4
-        id: cache
         with:
           path: ~/.skaffold
           key: fixed-${{ runner.os }}
