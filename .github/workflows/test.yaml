@@ -47,7 +47,6 @@ jobs:
 
       - name: Install Kind-optimized ingress controller
         run: |
-          cat ${GITHUB_WORKSPACE}/kind-config.yaml
           kubectl apply -f https://kind.sigs.k8s.io/examples/ingress/deploy-ingress-nginx.yaml
 
       - name: Update Cluster DNS to resolve shopware.test and media.test domains
