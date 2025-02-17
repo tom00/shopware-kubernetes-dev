@@ -29,7 +29,7 @@ export default defineConfig({
         ['github'],
         ['list'],
         ['@estruyf/github-actions-reporter', <GitHubActionOptions>{
-            title: 'Test Results',
+            title: 'E2E Test Results',
             useDetails: true,
             showError: true,
             debug: true

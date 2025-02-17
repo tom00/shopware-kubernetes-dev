@@ -19,12 +19,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: actions/cache/restore@v4
-        with:
-          path: ~/.skaffold
-          key: fixed-${{ runner.os }}
-          fail-on-cache-miss: false
-
       - uses: yokawasa/action-setup-kube-tools@v0.11.2
         with:
           setup-tools: |
@@ -36,6 +30,13 @@ jobs:
           helm: '3.16.3'
           kustomize: '5.4.2'
           skaffold: '2.13.2'
+
+      - name: Cache Skaffold image build references
+        uses: actions/cache@v4
+        with:
+          path: ~/.skaffold
+          key: fixed-${{ runner.os }}
+          fail-on-cache-miss: false
 
       - name: Create auth.json
         run: echo '${{ secrets.COMPOSER_AUTH }}' > $GITHUB_WORKSPACE/auth.json
@@ -79,12 +80,7 @@ jobs:
 
       - name: Build Shopware
         run: |
-          skaffold build --file-output=.build-artifacts
-
-      - uses: actions/cache/save@v4
-        with:
-          path: ~/.skaffold
-          key: fixed-${{ runner.os }}
+          skaffold build --file-output=.build-artifacts --push=true
 
       - name: Deploy Shopware to local Kind cluster
         run: |
@@ -101,15 +97,14 @@ jobs:
             /shopware-bin php-cli vendor/bin/phpunit -c vendor/kiwee/shopware-demo-plugin/phpunit.xml
 
       - name: Run E2E tests
-        env:
-          GITHUB_STEP_SUMMARY: ${{ github.step_summary }}
         run: |
+          # disable exit on error to allow the step summary to be created
           set +e
-          set -x
           
           skaffold verify -a .build-artifacts
           exit_code=$?
           set -e
+          
           # get the step summary and save it to the step summary file
           kubectl create -n shopware -f deploy/overlays/dev/app/step-summary.yaml
           kubectl wait --for=condition=complete job/output-step-summary --timeout=30s -n shopware
