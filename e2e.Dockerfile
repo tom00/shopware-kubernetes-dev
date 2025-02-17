@@ -1,9 +1,6 @@
 FROM node:23-slim
 # install dependencies and change user & group id to 1001 for GitHub Actions compatibility
-RUN apt-get update && apt-get install -y curl && \
-    usermod -u 1001 node && \
-    groupmod -g 1001 node && \
-    chown -R 1001:1001 /home/node
+RUN apt-get update && apt-get install -y curl
 
 WORKDIR /app
 COPY --chown=node:node e2e/package.json package.json
