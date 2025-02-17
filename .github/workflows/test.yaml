@@ -42,7 +42,7 @@ jobs:
         run: echo '${{ secrets.COMPOSER_AUTH }}' > $GITHUB_WORKSPACE/auth.json
 
       - name: Login to Container Registry
-        run: echo "${{ secrets.CONTAINER_REGISTRY_PASSWORD }}" | docker login -u ${{ secrets.CONTAINER_REGISTRY_USERNAME }} --password-stdin
+        run: echo "${{ secrets.CONTAINER_REGISTRY_TOKEN }}" | docker login -u ${{ secrets.CONTAINER_REGISTRY_USERNAME }} --password-stdin
 
       - name: Create a Kind cluster
         uses: helm/kind-action@v1.11.0
