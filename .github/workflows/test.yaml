@@ -75,7 +75,7 @@ jobs:
           kubectl apply -n kube-system -f coredns.yaml
 
       - name: Restore Skaffold Cache
-        uses: actions/cache/restore@v4.1.2
+        uses: actions/cache/restore@v3
         id: cache-skaffold-restore
         with:
           path: ~/.skaffold
@@ -87,7 +87,7 @@ jobs:
           skaffold build --file-output=.build-artifacts --push=true
 
       - name: Save Skaffold Cache
-        uses: actions/cache/save@v4.1.2
+        uses: actions/cache/save@v3
         id: cache-skaffold-save
         with:
           path: ~/.skaffold
