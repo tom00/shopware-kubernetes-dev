@@ -137,4 +137,4 @@ verify:
             echo "E2E tests finished."
     executionMode:
       kubernetesCluster:
-        jobManifestPath: deploy/overlays/dev/app/e2e.yaml
+        jobManifestPath: deploy/overlays/test/app/e2e.yaml
