@@ -76,7 +76,7 @@ jobs:
 
       - name: Restore Skaffold Cache
         uses: actions/cache/restore@v4
-        id: cache-skaffold-save
+        id: cache-skaffold-restore
         with:
           path: ~/.skaffold
           key: fixed-${{ runner.os }}
