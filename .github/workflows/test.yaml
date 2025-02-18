@@ -91,7 +91,7 @@ jobs:
         id: cache-skaffold-save
         with:
           path: ~/.skaffold
-          key: ${{ steps.cache-skaffold-save.outputs.cache-primary-key }}
+          key: ${{ steps.cache-skaffold-restore.outputs.cache-primary-key }}
 
       - name: Deploy Shopware to local Kind cluster
         run: |
