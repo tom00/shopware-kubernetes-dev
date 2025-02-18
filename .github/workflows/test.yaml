@@ -79,7 +79,7 @@ jobs:
         id: cache-skaffold-restore
         with:
           path: ~/.skaffold
-          key: fixed-${{ runner.os }}
+          key: skaffold-${{ runner.os }}-${{ hashFiles('cache') }}
           fail-on-cache-miss: false
 
       - name: Build Shopware
@@ -91,7 +91,7 @@ jobs:
         id: cache-skaffold-save
         with:
           path: ~/.skaffold
-          key: fixed-${{ runner.os }}
+          key: skaffold-${{ runner.os }}-${{ hashFiles('cache') }}
 
       - name: Deploy Shopware to local Kind cluster
         run: |
