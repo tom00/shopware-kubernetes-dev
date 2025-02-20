@@ -9,7 +9,8 @@ COPY --chown=node:node e2e/playwright.config.ts playwright.config.ts
 RUN npm install && \
     npx playwright install && \
     npx playwright install-deps && \
-    cp -R /root/.cache /home/node/.cache
+    # Move the cache to the node user that will run the tests
+    mv /root/.cache /home/node/.cache
 
 RUN chown -R node:node /app
 COPY --chown=node:node e2e/BaseTest.ts BaseTest.ts
