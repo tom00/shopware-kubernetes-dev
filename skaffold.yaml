@@ -115,6 +115,7 @@ verify:
         env:
           - name: CI
             value: true
+            # Path to the file where the test summary will be written.
           - name: GITHUB_STEP_SUMMARY
             value: "/app/step_summary"
           - name: GITHUB_ACTIONS
