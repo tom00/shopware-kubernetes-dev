@@ -45,6 +45,8 @@ spec:
             - -a
             - -v
             - --no-compress
+            - -r
+            - /app/public
           image: kiweeteam/franken-shopware-dev
           envFrom:
             - configMapRef:
