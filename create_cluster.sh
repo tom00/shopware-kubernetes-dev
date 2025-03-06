@@ -5,7 +5,7 @@ CPUS=4
 MEMORY=8G
 
 minikube start \
-	--kubernetes-version=v1.31.0 \
+	--kubernetes-version=v1.32.0 \
 	--vm-driver=${VM} \
 	--cpus=${CPUS} \
 	--memory=${MEMORY} \
