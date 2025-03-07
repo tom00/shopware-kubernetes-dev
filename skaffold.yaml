@@ -9,6 +9,10 @@ build:
         docker:
           dockerfile: Dockerfile
           target: app-prod
+          cacheFrom:
+            - kiweeteam/franken-shopware
+          buildArgs:
+            BUILDKIT_INLINE_CACHE: "1"
           secrets:
             - id: composer_auth
               src: auth.json
@@ -19,10 +23,19 @@ build:
               dest: "/app/custom"
         docker:
           dockerfile: Dockerfile
+          cacheFrom:
+            - kiweeteam/franken-shopware-dev
+          buildArgs:
+            BUILDKIT_INLINE_CACHE: "1"
           target: app-dev
           secrets:
             - id: composer_auth
               src: auth.json
+      - image: kiweeteam/shopware-e2e
+        docker:
+          dockerfile: e2e.Dockerfile
+          cacheFrom:
+            - kiweeteam/shopware-e2e
   local:
     useBuildkit: true
     concurrency: 3
@@ -96,41 +109,30 @@ deploy:
                       - ALL
                   seccompProfile:
                     type: RuntimeDefault
-      - name: cert-manager
-        remoteChart: cert-manager
-        namespace: cert-manager
-        createNamespace: true
-        repo: https://charts.jetstack.io
-        version: v1.15.3
-        wait: true
-        setValues:
-          installCRDs: true
-          ingressShim:
-            defaultIssuerKind: ClusterIssuer
-            defaultIssuerName: selfsigned
-      - name: sealed-secrets
-        remoteChart: sealed-secrets
-        namespace: sealed-secrets
-        createNamespace: true
-        repo: https://bitnami-labs.github.io/sealed-secrets
-        version: 2.16.1
-        wait: true
 verify:
-  - name: smoke-test
-    executionMode:
-      kubernetesCluster: {}
+  - name: e2e
     container:
-      name: curl
-      image: curlimages/curl:8.10.0
-      command:
-        - /bin/sh
-      args:
-        - -c
-        - |
-          # test if homepage is accessible
-          curl \
-            -kILSs \
-            --fail \
-            --retry 10 \
-            --retry-all-errors \
-            http://shopware.test/
+        name: e2e
+        image: kiweeteam/shopware-e2e
+        env:
+          - name: CI
+            value: true
+            # Path to the file where the test summary will be written.
+          - name: GITHUB_STEP_SUMMARY
+            value: "/app/step_summary"
+          - name: GITHUB_ACTIONS
+            value: true
+        command:
+          - /bin/sh
+        args:
+          - -c
+          - |
+            set -e
+            echo "Waiting until the homepage is accessible..."
+            curl -kILSs --fail --retry 10 --retry-all-errors http://shopware.test/
+            echo "Running E2E tests..."
+            npx playwright test
+            echo "E2E tests finished."
+    executionMode:
+      kubernetesCluster:
+        jobManifestPath: deploy/overlays/test/app/e2e.yaml
