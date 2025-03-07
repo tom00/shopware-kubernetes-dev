@@ -34,6 +34,8 @@ build:
       - image: kiweeteam/shopware-e2e
         docker:
           dockerfile: e2e.Dockerfile
+          cacheFrom:
+            - kiweeteam/shopware-e2e
   local:
     useBuildkit: true
     concurrency: 3

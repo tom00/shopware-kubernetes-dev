@@ -74,13 +74,6 @@ jobs:
           sed -i "/^.*kubernetes cluster.local/ i \ \ \ \ \ \ \ \ hosts {\n\ \ \ \ \ \ \ \ \ \ $INGRESS_IP shopware.test\n\ \ \ \ \ \ \ \ \ \ $INGRESS_IP media.test\n\ \ \ \ \ \ \ \ \ \ fallthrough\n\ \ \ \ \ \ \ \ }" coredns.yaml
           kubectl apply -n kube-system -f coredns.yaml
 
-      - name: Skaffold Cache
-        uses: actions/cache@v4
-        id: cache-skaffold
-        with:
-          path: ~/.skaffold
-          key: fixed-${{ runner.os }}
-
       - name: Build Shopware
         run: |
           skaffold build --file-output=.build-artifacts --push=true
