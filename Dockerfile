@@ -41,24 +41,23 @@ SHELL ["/bin/bash", "-c"]
 
 # build-static.sh script compresses the executable with max compression level only which is too slow
 # to be used in the CI. Thus the compression has been carried out of the build-static script,
-# thus needs to be disabled via `NO_COMPRESS=1`.
+# that's why the default compression must be turned off.
 ENV NO_COMPRESS=1
 # The List of extensions to build in.
 ENV PHP_EXTENSIONS="amqp,apcu,bcmath,bz2,calendar,ctype,curl,dba,dom,exif,fileinfo,filter,gd,gmp,gettext,iconv,igbinary,intl,ldap,mbstring,mysqli,mysqlnd,opcache,openssl,pcntl,pdo,pdo_mysql,pdo_sqlite,phar,posix,protobuf,readline,redis,session,shmop,simplexml,soap,sockets,sodium,sqlite3,ssh2,sysvmsg,sysvsem,sysvshm,tidy,tokenizer,xlswriter,xml,xmlreader,xmlwriter,zip,zlib,yaml,zstd"
 ENV PHP_VERSION="8.3"
+ARG PHP_STATIC_CLI_VERSION="2.4.5"
 
 WORKDIR /go/src/app/dist/app
 COPY --from=app-builder-prod /app /go/src/app/dist/app
 COPY php.ini.production /go/src/app/dist/app/php.ini
 
-# Build the static binary
 WORKDIR /go/src/app/
-
-# Remove pre-compiled php-static library and build the new binary
-RUN rm -Rf dist/static-php-cli/ \
+# Before building new php static binary
+# ensure that the expected version of the static-php-cli is used instead of default (dev-main).
+RUN rm -Rf dist/static-php-cli dist/frankenphp-* \
+    && git clone --depth 1 --branch ${PHP_STATIC_CLI_VERSION} --single-branch https://github.com/crazywhalecc/static-php-cli dist/static-php-cli \
     && EMBED=dist/app/ ./build-static.sh
-
-# RUN EMBED=dist/app/ ./build-static.sh
 
 # Compress the executable.
 # Compression level=7 is a good balance between the compression ratio and speed.
