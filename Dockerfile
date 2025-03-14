@@ -1,13 +1,13 @@
 # syntax=docker/dockerfile:1
 
 # Shopware-builder base image contains all necesary tools to build Shopware with `composer`.
-FROM dunglas/frankenphp:1.3.3-php8.3.14-bookworm AS app-builder
+FROM dunglas/frankenphp:1.4.4-php8.3.17-bookworm AS app-builder
 ENV COMPOSER_HOME=/tmp/composer
 ENV PROJECT_ROOT=/app
 ENV UID=33
 ENV GID=33
 
-COPY --from=composer:2.7.7 /usr/bin/composer /usr/bin/composer
+COPY --from=composer:2.8.6 /usr/bin/composer /usr/bin/composer
 COPY php.ini.development /usr/local/etc/php/php.ini
 
 RUN apt-get clean && apt-get update
@@ -36,7 +36,7 @@ RUN --mount=type=secret,id=composer_auth,mode=444,dst=/app/auth.json \
     && echo '<?php phpinfo();' > public/info.php
 
 # Build production static binary containing Shopware, PHP and Caddy webserver compiled-in.
-FROM dunglas/frankenphp:static-builder-1.3.3 AS php-builder-prod
+FROM dunglas/frankenphp:static-builder-1.4.4 AS php-builder-prod
 SHELL ["/bin/bash", "-c"]
 
 # build-static.sh script compresses the executable with max compression level only which is too slow
@@ -53,8 +53,9 @@ COPY --from=app-builder-prod /app /go/src/app/dist/app
 COPY php.ini.production /go/src/app/dist/app/php.ini
 
 WORKDIR /go/src/app/
-# Before building new php static binary
-# ensure that the expected version of the static-php-cli is used instead of default (dev-main).
+
+# Before building the new php static binary
+# ensure that the expected version of the static-php-cli is used instead of default one (dev-main).
 RUN rm -Rf dist/static-php-cli dist/frankenphp-* \
     && git clone --depth 1 --branch ${PHP_STATIC_CLI_VERSION} --single-branch https://github.com/crazywhalecc/static-php-cli dist/static-php-cli \
     && EMBED=dist/app/ ./build-static.sh
@@ -84,7 +85,7 @@ USER ${UID}:${GID}
 ENTRYPOINT ["/shopware-bin"]
 
 # Build dev image with xdebug.
-FROM dunglas/frankenphp:1.3.3-php8.3.14-bookworm AS app-dev
+FROM dunglas/frankenphp:1.4.4-php8.3.17-bookworm AS app-dev
 ENV PROJECT_ROOT=/app
 ENV PHP_EXTENSIONS="amqp,apcu,bcmath,bz2,calendar,ctype,curl,dba,dom,exif,fileinfo,filter,gd,gmp,gettext,iconv,igbinary,intl,ldap,mbstring,mysqli,mysqlnd,opcache,openssl,pcntl,pdo,pdo_mysql,pdo_sqlite,phar,posix,protobuf,readline,redis,session,shmop,simplexml,soap,sockets,sodium,sqlite3,ssh2,sysvmsg,sysvsem,sysvshm,tidy,tokenizer,xlswriter,xml,xmlreader,xmlwriter,zip,zlib,yaml,zstd"
 ENV CADDY_GLOBAL_OPTIONS=debug
@@ -92,7 +93,7 @@ ENV UID=33
 ENV GID=33
 SHELL ["/bin/bash", "-c"]
 
-COPY --from=composer:2.7.7 /usr/bin/composer /usr/bin/composer
+COPY --from=composer:2.8.6 /usr/bin/composer /usr/bin/composer
 COPY php.ini.development ${PHP_INI_DIR}/php.ini
 COPY --chown=${UID}:${GID} --from=app-builder-dev ${PROJECT_ROOT} ${PROJECT_ROOT}
 
