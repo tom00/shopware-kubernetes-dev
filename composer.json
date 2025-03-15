@@ -5,7 +5,7 @@
   "require": {
     "composer-runtime-api": "^2.0",
     "shopware/administration": "*",
-    "shopware/core": "v6.6.6.1",
+    "shopware/core": "v6.6.10.2",
     "shopware/elasticsearch": "*",
     "shopware/storefront": "*",
     "symfony/flex": "~2",
@@ -14,8 +14,7 @@
     "kiwee/shopware-demo-plugin": "^0.0.3"
   },
   "require-dev": {
-    "phpunit/phpunit": "^9.6",
-    "johnkary/phpunit-speedtrap": "^4.0",
+    "phpunit/phpunit": "^12.0",
     "symfony/phpunit-bridge": "^7.0",
     "symfony/stopwatch": "^7.0",
     "symfony/web-profiler-bundle": "^7.0"
