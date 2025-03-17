@@ -40,7 +40,6 @@ export default defineConfig({
         trace: 'retain-on-failure',
         video: 'off',
     },
-    // We abuse this to wait for the external webserver
     projects: [
         {
             name: 'chromium',
