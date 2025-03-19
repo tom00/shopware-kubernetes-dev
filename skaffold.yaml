@@ -47,6 +47,7 @@ deploy:
   statusCheck: true
   # fail deployment if it doesn't stabilize within 20 minutes.
   statusCheckDeadlineSeconds: 1200
+  tolerateFailuresUntilDeadline: true
   kubectl:
     defaultNamespace: shopware
   helm:
